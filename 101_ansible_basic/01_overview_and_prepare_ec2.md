@@ -1,21 +1,24 @@
 # 演習の概要と環境の準備
----
 ここでは演習環境の概要の解説と、演習環境の準備を行います。
 
 ## 演習環境について
----
-本演習はAWS上に構築されたで行われます。演習環境は以下のように構成されています。
+本演習環境は以下のように構成されています。
 
 ![environment.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/environment.png)
 
 
-## 演習環境の利用方法
----
-講師の案内に従い演習環境へアクセスしてください。
+## 演習環境への利用方法
+
+### 演習環境へのアクセス
+講師の案内に従い演習環境へアクセスしてください。アクセスにはパスワードの入力が必要となります。
+
+![vscode_pass](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/vscode_pass.png)
+
+アクセスすると以下のような画面が表示されます。
+![vscode_start_page](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/vscode_start_page.png)
 
 ### ターミナルの起動
----
-JupyterLab上でターミナルを起動します。画面左側の「フォルダ」アイコンをクリックして、ファイルブラウザーを起動します。すでに起動している場合はそのままにしてください。
+画面左側の「フォルダ」アイコンをクリックして、ファイルブラウザーを起動します。すでに起動している場合はそのままにしてください。
 
 ![open_file_browser](https://raw.githubusercontent.com/irixjp/katacoda-scenarios/master/materials/images/open_file_browser.png)
 
