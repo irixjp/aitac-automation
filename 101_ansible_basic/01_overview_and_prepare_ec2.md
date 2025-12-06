@@ -12,57 +12,78 @@
 ### 演習環境へのアクセス
 講師の案内に従い演習環境へアクセスしてください。アクセスにはパスワードの入力が必要となります。
 
-![vscode_pass](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/vscode_pass.png)
+![vscode_pass.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/vscode_pass.png)
 
 アクセスすると以下のような画面が表示されます。
+
 ![vscode_start_page](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/vscode_start_page.png)
 
+### ファイルエクスプローラーの設定
+
+画面左上の ![file_exp_icon.png](https://raw.githubusercontent.com/irixjp/katacoda-scenarios/master/materials/images/file_exp_icon.png) をクリックします。
+
+左ウインドにファイルエクスプローラーが起動しますので、`Open Folder` を選択する。
+
+![file_exp_open_folder.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/file_exp_open_folder.png)
+
+`/student/` (デフォルトのまま) を入力してOKを選択すると、ファイルエクスプローラーに `/student` が表示されます。演習中のファイル作成や編集をここから行います。
+
+![select_dir.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/select_dir.png)
+
+このときに、いくつかの警告が表示される場合がありますが `Yes` を選択してください。
+
+![notification.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/notification.png)
+
+> Note: この後も警告が表示される場合はありますが、全て `Yes` や `Accept` を選択してください。
+
 ### ターミナルの起動
-画面左側の「フォルダ」アイコンをクリックして、ファイルブラウザーを起動します。すでに起動している場合はそのままにしてください。
 
-![open_file_browser](https://raw.githubusercontent.com/irixjp/katacoda-scenarios/master/materials/images/open_file_browser.png)
+画面左上側の「≡」(横三本線)アイコンをクリックして、`Terminal` -> `New Terminal` を選択するとターミナルを起動できます。
 
-ファイルブラウザーの「+」ボタンをクリックしランチャーを起動します。
+![open_terminal.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/open_terminal.png)
 
-![add_launcher](https://raw.githubusercontent.com/irixjp/katacoda-scenarios/master/materials/images/add_launcher.png)
+起動すると以下のような画面になります。
 
-ランチャー内の「Other」から「Terminal」アイコンをクリックします。
-
-![open_terminal](https://raw.githubusercontent.com/irixjp/katacoda-scenarios/master/materials/images/open_terminal.png)
+![terminal.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/terminal.png)
 
 ターミナルを起動したら動作確認を行います。以下のコマンドをターミナルから実行してください。
 
-> Note: 本演習では、 `{{execute}}` とついている部分が、演習で実行するコマンドになります。 `{{execute}}` 自身は入力する必要はありません。
+> Note: 本演習では ![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png) とついている部分が演習で実行するコマンドになります。
 
-`ansible --version`{{execute}}
-
-```text
-ansible [core 2.11.5] 
-  config file = /jupyter/.ansible.cfg
-  configured module search path = ['/jupyter/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
-  ansible python module location = /usr/local/lib/python3.8/site-packages/ansible
-  ansible collection location = /jupyter/.ansible/collections:/usr/share/ansible/collections
-  executable location = /usr/local/bin/ansible
-  python version = 3.8.6 (default, Jan 29 2021, 17:38:16) [GCC 8.4.1 20200928 (Red Hat 8.4.1-1)]
-  jinja version = 3.0.2
-  libyaml = True
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+```shell
+ansible --version
 ```
 
-`ansible all -m ping -o`{{execute}}
+```text
+ansible [core 2.20.0]
+  config file = /student/.ansible.cfg
+  configured module search path = ['/student/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /student/.local/lib/python3.12/site-packages/ansible
+  ansible collection location = /student/.ansible/collections:/usr/share/ansible/collections
+  executable location = /student/.local/bin/ansible
+  python version = 3.12.11 (main, Aug 14 2025, 00:00:00) [GCC 14.3.1 20250617 (Red Hat 14.3.1-2)] (/usr/bin/python3)
+  jinja version = 3.1.6
+  pyyaml version = 6.0.3 (with libyaml v0.2.5)
+```
+
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+```shell
+ansible all -m ping -o
+```
 
 ```text
-node-1 | SUCCESS => {"ansible_facts": {"discovered_interpreter_python": "/usr/libexec/platform-python"},"changed": false,"ping": "pong"}
-node-2 | SUCCESS => {"ansible_facts": {"discovered_interpreter_python": "/usr/libexec/platform-python"},"changed": false,"ping": "pong"}
-node-3 | SUCCESS => {"ansible_facts": {"discovered_interpreter_python": "/usr/libexec/platform-python"},"changed": false,"ping": "pong"}
+node1 | SUCCESS => {"changed": false,"ping": "pong"}
+node2 | SUCCESS => {"changed": false,"ping": "pong"}
+node3 | SUCCESS => {"changed": false,"ping": "pong"}
+node4 | SUCCESS => {"changed": false,"ping": "pong"}
+node5 | SUCCESS => {"changed": false,"ping": "pong"}
+node6 | SUCCESS => {"changed": false,"ping": "pong"}
 ```
 
 > Note: 表示されるバージョン等の差異については無視してください。コマンドがエラーにならなければ演習が可能な状態になっています。
 
-
-起動したターミナルはタブをドラッグして移動することて表示位置を変更できます。以下の例のように、Markdown と並べて表示することもできますので、演習が進めやすいように各自配置を変更してください。
-
-![vertical_split_terminal](https://raw.githubusercontent.com/irixjp/katacoda-scenarios/master/materials/images/vertical_split_terminal.png)
-
+> Note: 起動したターミナルはドラッグして移動することて表示位置を変更できます。演習が進めやすいように各自配置を調整してください。
 
 ### 補足事項
 ---
