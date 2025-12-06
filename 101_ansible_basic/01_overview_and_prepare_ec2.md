@@ -6,7 +6,7 @@
 ---
 本演習はAWS上に構築されたで行われます。演習環境は以下のように構成されています。
 
-![environment.png](https://raw.githubusercontent.com/irixjp/katacoda-scenarios/master/materials/images/kata_env.png)
+![environment.png](https://raw.githubusercontent.com/irixjp/aitac-automation/master/images/environment.png)
 
 
 ## 演習環境の利用方法
