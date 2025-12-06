@@ -1,5 +1,5 @@
 ---
-- hosts: node-1
+- hosts: node1
   gather_facts: no
   vars:
     play_vars:
@@ -11,13 +11,13 @@
         value: fine
   tasks:
     - name: print play_vars
-      debug:
+      ansible.builtin.debug:
         var: play_vars
 
     - name: access to the array
-      debug:
+      ansible.builtin.debug:
         msg: "{{ play_vars[1].order }}"
 
     - name: join variables
-      debug:
+      ansible.builtin.debug:
         msg: "{{ play_vars[0].value}} {{ play_vars[1].value }} {{ play_vars[2].value }}"

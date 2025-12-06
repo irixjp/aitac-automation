@@ -1,22 +1,22 @@
 ---
-- hosts: node-1
+- hosts: node1
   gather_facts: no
   tasks:
     - name: exec hostname command
-      shell: hostname
+      ansible.builtin.shell: hostname
       register: ret
 
     - name: print ret
-      debug:
+      ansible.builtin.debug:
         var: ret
 
     - name: create a directory
-      file:
+      ansible.builtin.file:
         path: /tmp/testdir
         state: directory
         mode: '0755'
       register: ret
 
     - name: print ret
-      debug:
+      ansible.builtin.debug:
         var: ret
