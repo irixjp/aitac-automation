@@ -50,7 +50,7 @@
 
 > Note: 本演習では ![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png) とついている部分が演習で実行するコマンドになります。
 
-![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+<img src="https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png" alt="run_command.png" style="height: 1.2em; vertical-align: middle;">
 `ansible --version`
 
 ```text
@@ -65,7 +65,7 @@ ansible [core 2.20.0]
   pyyaml version = 6.0.3 (with libyaml v0.2.5)
 ```
 
-![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+<img src="https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png" alt="run_command.png" style="height: 1.2em; vertical-align: middle;">
 `ansible all -m ping -o`
 
 ```text
