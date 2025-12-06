@@ -1,34 +1,34 @@
 # ループ、条件式、ハンドラー
----
+
 playbook は YAML 形式で表記するため、基本的には作業やパラメーターを「データ」として表現することになります。しかし、時にはプログラミングとしての表現を用いたほうが簡潔に作業を記述できる場合も多くあり、Ansibleはそのための機能を備えています。この演習では、 playbook が持つ「プログラミングとしての機能」をみていきます。
 
 ## ループ
----
-特定のタスクを繰り返し実行する場合に用います。例えば、`apple`, `orange`, `pineapple` の3つOSユーザーを作成する playbook を見てみましょう。ユーザーを追加するには [`user`](https://docs.ansible.com/ansible/latest/modules/user_module.html) モジュールが利用できるので、以下のような playbook が書けます。
+
+特定のタスクを繰り返し実行する場合に用います。例えば、`apple`, `orange`, `pineapple` の3つOSユーザーを作成する playbook を見てみましょう。ユーザーを追加するには [`ansible.builtin.user`](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/user_module.html) モジュールが利用できるので、以下のような playbook が書けます。
 
 ```yaml
 ---
 - name: add three users individually
-  hosts: node-1
+  hosts: node1
   become: yes
   tasks:
     - name: add apple user
-      user:
+      ansible.builtin.user:
         name: apple
         state: present
 
     - name: add orange user
-      user:
+      ansible.builtin.user:
         name: orange
         state: present
 
     - name: add pineapple user
-      user:
+      ansible.builtin.user:
         name: pipeapple
         state: present
 ```
 
-この playbook は完全に意図したとおりに3つのユーザーを追加するように動作します。しかし、この方法は同じ記述を何度も繰り返す必要があり冗長です。仮に `user` モジュールの仕様が変わり、パラメーターの与え方が変更されたり、後で作成するユーザーに追加の情報をもたせたいときには、各タスクを全て編集する必要があります。
+この playbook は完全に意図したとおりに3つのユーザーを追加するように動作します。しかし、この方法は同じ記述を何度も繰り返す必要があり冗長です。仮に `ansible.builtin.user` モジュールの仕様が変わり、パラメーターの与え方が変更されたり、後で作成するユーザーに追加の情報をもたせたいときには、各タスクを全て編集する必要があります。
 
 このような繰り返し処理に利用できるのが `loop` 句です。
 
@@ -37,7 +37,7 @@ playbook は YAML 形式で表記するため、基本的には作業やパラ�
 ```yaml
 ---
 - name: add users by loop
-  hosts: node-1
+  hosts: node1
   become: yes
   vars:
     user_list:
@@ -46,7 +46,7 @@ playbook は YAML 形式で表記するため、基本的には作業やパラ�
       - pineapple
   tasks:
     - name: add a user
-      user:
+      ansible.builtin.user:
         name: "{{ item }}"
         state: present
       loop: "{{ user_list }}"
@@ -58,26 +58,29 @@ playbook は YAML 形式で表記するため、基本的には作業やパラ�
 
 `loop_playbook.yml` を実行します。
 
-`cd ~/working`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`cd ~/working`
 
-`ansible-playbook loop_playbook.yml`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook loop_playbook.yml`
 
 ```text
 (省略)
 TASK [Gathering Facts] *******************************
-ok: [node-1]
+ok: [node1]
 
 TASK [add a user] ************************************
-changed: [node-1] => (item=apple)
-changed: [node-1] => (item=orange)
-changed: [node-1] => (item=pineapple)
+changed: [node1] => (item=apple)
+changed: [node1] => (item=orange)
+changed: [node1] => (item=pineapple)
 
 (省略)
 ```
 
 本当にユーザーが追加されたかを確認してみましょう。正しく playbook が記述されていれば、node-1 にユーザーが作成されているはずです。
 
-`ansible node-1 -b -m shell -a 'cat /etc/passwd'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible node1 -b -m ansible.builtin.shell -a 'cat /etc/passwd'`
 
 ```text
 (省略)
@@ -88,21 +91,24 @@ pineapple:x:1003:1003::/home/pineapple:/bin/bash
 
 > Note: `/etc/passwd` ファイルはLinux上のユーザー情報が格納されたファイルです。
 
-さらに `mango`, `peach` ユーザーを追加したくなったとします。その場合には、どのように playbook を編集すれば良いでしょうか。実際に playbook を編集して再度実行してください。以下のような実行結果となれば正しく記述できています。冪等性が働いていることが確認できるはずです。
+さらに `mango`, `peach` ユーザーを追加したくなったとします。その場合には、どのように playbook を編集すれば良いでしょうか。
 
-`ansible-playbook loop_playbook.yml`{{execute}}
+自分で考えて実際に playbook を編集して実行してください。以下のような実行結果となれば正しく記述できています。冪等性が働いていることが確認できるはずです。
+
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook loop_playbook.yml`
 
 ```text
 (省略)
 TASK [Gathering Facts] *******************************
-ok: [node-1]
+ok: [node1]
 
 TASK [add a user] ************************************
-ok: [node-1] => (item=apple)
-ok: [node-1] => (item=orange)
-ok: [node-1] => (item=pineapple)
-changed: [node-1] => (item=mango)
-changed: [node-1] => (item=peach)
+ok: [node1] => (item=apple)
+ok: [node1] => (item=orange)
+ok: [node1] => (item=pineapple)
+changed: [node1] => (item=mango)
+changed: [node1] => (item=peach)
 
 (省略)
 ```
@@ -111,37 +117,37 @@ changed: [node-1] => (item=peach)
 
 > Note: この演習では変数 `user_list` を playbook の内部で定義していますが、これを `group_vars` などのファイルに持たせることで、「ユーザーを追加する処理」と「追加されるユーザーのデータ」を分けて管理することが可能になります。
 
-ここでは最も単純なループを紹介しましたが、様々なケースでのループ方法が[公式ドキュメント](https://docs.ansible.com/ansible/latest/user_guide/playbooks_loops.html)で紹介されています。状況に応じて使い分けてください。
+ここでは最も単純なループを紹介しましたが、様々なケースでのループ方法が[公式ドキュメント](https://docs.ansible.com/projects/ansible/latest/playbook_guide/playbooks_loops.html)で紹介されています。状況に応じて使い分けてください。
 
 
 ## 条件式
----
+
 Ansible の条件式は特定の条件下でタスクを実行「する・しない」を制御するために用いられます。条件の記述には `when` 句を使います。典型的な利用方法として、あるタスクの実行結果を元に、次のタスクを実行する・しないという制御を行うケースです。
 
 実際に以下の`~/working/when_playbook.yml` を書いてみましょう
 ```yaml
 ---
 - name: start httpd if it's stopped
-  hosts: node-1
+  hosts: node1
   become: yes
   tasks:
     - name: install httpd
-      yum:
+      ansible.builtin.dnf:
         name: httpd
         state: latest
 
     - name: check httpd processes is running
-      shell: ps -ef |grep http[d]
+      ansible.builtin.shell: ps -ef |grep http[d]
       register: ret
       ignore_errors: yes
       changed_when: no
 
     - name: print return value
-      debug:
+      ansible.builtin.debug:
         var: ret
 
     - name: start httpd (httpd is stopped)
-      service:
+      ansible.builtin.service:
         name: httpd
         state: started
       when:
@@ -150,39 +156,50 @@ Ansible の条件式は特定の条件下でタスクを実行「する・しな
 
 この playbook は httpd プロセスの起動状態を確かめ、もしプロセスが存在していなければ起動する、という処理になります。
 
-> Note: 実際には冪等性が働くため、この処理は `service` 部分だけでも同じ効果となりますのであまり意味がありませんが、練習用の題材だと考えてください。
+> Note: 実際には冪等性が働くため、この処理は `ansible.builtin.service` 部分だけでも同じ効果となりますのであまり意味がありませんが、練習用の題材だと考えてください。
 
 - `register: ret` ここで `ps -ef | grep http[d]` の結果を格納しています。
 - `ignore_errors: yes` タスク内で発生したエラーを無視するオプションです。このコマンドはプロセスが見つからない場合にエラーとなるため、このオプションをつけないとここでタスクが停止します。
-- `changed_when: no` このタスクが `changed` になる条件を記載します。通常 `shell` モジュールは常に `changed` を返しますが、このオプション `changed` になる条件をしているすことができます。
+- `changed_when: no` このタスクが `changed` になる条件を記載します。通常 `ansible.builtin.shell` モジュールは常に `changed` を返しますが、このオプション `changed` になる条件をしているすことができます。
   - ここに `no` を指定すると常に `ok` を返すようになります。今回の `ps -ef` コマンドを実行するだけのように、OSに影響を与えないコマンド実行の場合によく使う方法です(何も変更しないコマンドが `changed` を返すのは混乱を招くため)
 - `when:` ここに条件をリスト形式で記載します。もし複数の条件をリストで与えた場合には、AND条件となります。
   - `- ret.rc == 1` shell モジュールの戻り値である `rc` の値を比較しています。`rc` にはコマンドラインの戻り値が格納されています。つまり、`ps -ef | grep http[d]` でプロセスが「見つからない」場合にはエラーとなり `1` がここに格納されます。
 
 playbook を実行する前に、httpd を停止しておきます(これはエラーになる場合がありますが無視してください)
 
-`ansible node-1 -b -m shell -a 'systemctl stop httpd'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible node1 -b -m ansible.builtin.shell -a 'systemctl stop httpd'`
 
 `~/working/when_playbook.yml` を実行します。
 
-`ansible-playbook when_playbook.yml`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook when_playbook.yml`
 
 ```text
 TASK [check httpd processes is running] **************
-fatal: [node-1]: FAILED! => {"changed": false, "cmd": "ps -ef |grep http[d]", "delta": "0:00:00.023918", "end": "2019-11-18 06:07:44.403881", "msg": "non-zero return code", "rc": 1, "start": "2019-11-18 06:07:44.379963", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+[ERROR]: Task failed: Module failed: non-zero return code
+Origin: /student/when_playbook.yml:11:7
+
+ 9         state: latest
+10
+11     - name: check httpd processes is running
+         ^ column 7
+
+fatal: [node1]: FAILED! => {"changed": false, "cmd": "ps -ef |grep http[d]", "delta": "0:00:00.014131", "end": "2025-12-06 14:37:34.578641", "msg": "non-zero return code", "rc": 1, "start": "2025-12-06 14:37:34.564510", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
 ...ignoring
 
 TASK [print return value] ****************************
-ok: [node-1] => {
+ok: [node1] => {
     "ret": {
         "changed": false,
         "cmd": "ps -ef |grep http[d]",
-        "delta": "0:00:00.023918",
-        "end": "2019-11-18 06:07:44.403881",
+        "delta": "0:00:00.014131",
+        "end": "2025-12-06 14:37:34.578641",
+        "exception": "(traceback unavailable)",
         "failed": true,
         "msg": "non-zero return code",
         "rc": 1,
-        "start": "2019-11-18 06:07:44.379963",
+        "start": "2025-12-06 14:37:34.564510",
         "stderr": "",
         "stderr_lines": [],
         "stdout": "",
@@ -191,101 +208,106 @@ ok: [node-1] => {
 }
 
 TASK [start httpd (httpd is stopped)] ****************
-changed: [node-1]
+changed: [node1]
 ```
 
-ここでは、httpd の起動タスクが `ret.rc == 1` の条件に当てはまったため実行されています。
+ここでは、httpd の起動タスクが `ret.rc == 1` の条件に適合したために実行されています。
 
 では、`~/working/when_playbook.yml` を再度実行します。今度は httpd が起動している状態です。
 
-`ansible-playbook when_playbook.yml`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook when_playbook.yml`
 
 ```text
 TASK [check httpd processes is running] **************
-ok: [node-1]
+ok: [node1]
 
 TASK [print return value] ****************************
-ok: [node-1] => {
+ok: [node1] => {
     "ret": {
         "changed": false,
         "cmd": "ps -ef |grep http[d]",
-        "delta": "0:00:00.018448",
-        "end": "2019-11-18 06:08:30.779933",
+        "delta": "0:00:00.009796",
+        "end": "2025-12-06 14:38:58.847032",
         "failed": false,
+        "msg": "",
         "rc": 0,
-        "start": "2019-11-18 06:08:30.761485",
+        "start": "2025-12-06 14:38:58.837236",
         "stderr": "",
         "stderr_lines": [],
-        "stdout": "root      4913     1  0 06:07 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache    4914  4913  0 06:07 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache    4915  4913  0 06:07 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache    4916  4913  0 06:07 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache    4917  4913  0 06:07 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache    4918  4913  0 06:07 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
+        "stdout": "root        7539       1  0 14:37 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache      7540    7539  0 14:37 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache      7541    7539  0 14:37 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache      7543    7539  0 14:37 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache      7611    7539  0 14:37 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
         "stdout_lines": [
-            "root      4913     1  0 06:07 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
-            "apache    4914  4913  0 06:07 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
-            "apache    4915  4913  0 06:07 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
-            "apache    4916  4913  0 06:07 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
-            "apache    4917  4913  0 06:07 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
-            "apache    4918  4913  0 06:07 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND"
+            "root        7539       1  0 14:37 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
+            "apache      7540    7539  0 14:37 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
+            "apache      7541    7539  0 14:37 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
+            "apache      7543    7539  0 14:37 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
+            "apache      7611    7539  0 14:37 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND"
         ]
     }
 }
 
 TASK [start httpd (httpd is stopped)] ****************
-skipping: [node-1]
+skipping: [node1]
+(省略)
 ```
 
 今回の実行では、`ret.rc` の値が `0` となるため、条件に合致せず `skipping` となっています。
 
-条件の記述方法などの詳細は[公式ドキュメント](https://docs.ansible.com/ansible/latest/user_guide/playbooks_conditionals.html)に更に詳細な解説があります。
+条件の記述方法などの詳細は[公式ドキュメント](https://docs.ansible.com/projects/ansible/latest/playbook_guide/playbooks_conditionals.html)に更に詳細な解説があります。
 
 条件式を使うことで、状況に応じて処理をコントロールすることが可能となります。ただし、あまりに複雑な条件を指定してしまうと、デバッグやメンテナンスに難が生じます。可能な限り条件分岐が発生しないように環境側を標準化しておくことが重要です。
 
 ## ハンドラー
----
+
 ハンドラーは `when` 句のような条件式に似た機能ですが、より用途が限定されています。具体的には、特定のタスクが `changed` になった時に、別のタスクを起動するという動作をします。典型的な用途として、ある設定ファイルを更新した時にセットでプロセスを再起動するといったケースが想定されています。
 
 演習では、`httpd.conf` をサーバーに配布して、ファイルが更新されたら `httpd` を再起動するという playbook を作成します。
 
 まず、配布する `httpd.conf` をサーバーから取得します。
 
-`ansible node-1 -m fetch -a 'src=/etc/httpd/conf/httpd.conf dest=files/httpd.conf flat=yes'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible node1 -m ansible.builtin.fetch -a 'src=/etc/httpd/conf/httpd.conf dest=files/httpd.conf flat=yes'`
 
 ```text
-node-1 | CHANGED => {
+node1 | CHANGED => {
     "changed": true,
-    "checksum": "fdb1090d44c1980958ec96d3e2066b9a73bfda32",
-    "dest": "/notebooks/solutions/files/httpd.conf",
-    "md5sum": "f5e7449c0f17bc856e86011cb5d152ba",
-    "remote_checksum": "fdb1090d44c1980958ec96d3e2066b9a73bfda32",
+    "checksum": "fcfc3261dbe43ccf2a521213571849cf36e277c0",
+    "dest": "/student/files/httpd.conf",
+    "file": "/etc/httpd/conf/httpd.conf",
+    "md5sum": "abc2d98f55602c033626f046ce72fffc",
+    "remote_checksum": "fcfc3261dbe43ccf2a521213571849cf36e277c0",
     "remote_md5sum": null
 }
 ```
 
-`ls -l files/`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ls -l files/`
 
 ```text
 total 16
--rw-r--r-- 1 jupyter jupyter 11753 Nov 18 07:40 httpd.conf
--rw-r--r-- 1 jupyter jupyter     2 Nov 17 14:35 index.html
+-rw-r--r--. 1 student student 12005 Dec  6 14:41 httpd.conf
+-rw-r--r--. 1 student student     6 Dec  6 13:45 index.html
 ```
 
-- [`fetch`](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/fetch_module.html) モジュールはリモートサーバーのファイルをローカルへ取得するモジュールです(`copy` モジュールの逆)
+- [`ansible.builtin.fetch`](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/fetch_module.html) モジュールはリモートサーバーのファイルをローカルへ取得するモジュールです(`ansible.builtin.copy` モジュールの逆)
 
 `~/working/handler_playbook.yml` を以下のように編集します。
 
 ```yaml
 ---
 - name: restart httpd if httpd.conf is changed
-  hosts: node-1
+  hosts: node1
   become: yes
   tasks:
     - name: Copy Apache configuration file
-      copy:
+      ansible.builtin.copy:
         src: files/httpd.conf
         dest: /etc/httpd/conf/
       notify:
         - restart_apache
   handlers:
     - name: restart_apache
-      service:
+      ansible.builtin.service:
         name: httpd
         state: restarted
 ```
@@ -299,16 +321,17 @@ total 16
 
 `~/working/handler_playbook.yml` を実行します。
 
-`ansible-playbook handler_playbook.yml`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook handler_playbook.yml`
 
 ```text
 PLAY [restart httpd if httpd.conf is changed] ********
 
 TASK [Gathering Facts] *******************************
-ok: [node-1]
+ok: [node1]
 
 TASK [Copy Apache configuration file] ****************
-ok: [node-1]
+ok: [node1]
 
 PLAY RECAP *******************************************
 node-1  : ok=2 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
@@ -328,7 +351,8 @@ ServerAdmin centos@localhost
 
 再度 `~/working/handler_playbook.yml` を実行します。
 
-`ansible-playbook handler_playbook.yml`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook handler_playbook.yml`
 
 ```text
 PLAY [restart httpd if httpd.conf is changed] ********
@@ -346,14 +370,14 @@ PLAY RECAP *******************************************
 node-1 : ok=3 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
 ```
 
-`httpd.conf` を更新したため、`copy` モジュールが `changed` となりました。すると設定した `notify` が呼び出され `restart_apache` が実行されています。
+`httpd.conf` を更新したため、`ansible.builtin.copy` モジュールが `changed` となりました。すると設定した `notify` が呼び出され `restart_apache` が実行されています。
 
 このようにタスクの `changed` をトリガーに、別のタスクを実行する方法がハンドラーになります。
 
 
 ## 演習の解答
----
-- [loop\_playbook.yml](https://github.com/irixjp/katacoda-scenarios/blob/master/materials/solutions/loop_playbook.yml)
-- [when\_playbook.yml](https://github.com/irixjp/katacoda-scenarios/blob/master/materials/solutions/when_playbook.yml)
-- [handler\_playbook.yml](https://github.com/irixjp/katacoda-scenarios/blob/master/materials/solutions/handler_playbook.yml)
+
+- [loop\_playbook.yml](https://github.com/irixjp/aitac-automation/blob/main/101_ansible_basic/solutions/loop_playbook.yml)
+- [when\_playbook.yml](https://github.com/irixjp/aitac-automation/blob/main/101_ansible_basic/solutions/when_playbook.yml)
+- [handler\_playbook.yml](https://github.com/irixjp/aitac-automation/blob/main/101_ansible_basic/solutions/handler_playbook.yml)
 
