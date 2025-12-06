@@ -20,7 +20,7 @@
 
 ### ファイルエクスプローラーの設定
 
-画面左上の ![file_exp_icon.png](https://raw.githubusercontent.com/irixjp/katacoda-scenarios/master/materials/images/file_exp_icon.png) をクリックします。
+画面左上の ![file_exp_icon.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/file_exp_icon.png) をクリックします。
 
 左ウインドにファイルエクスプローラーが起動しますので、`Open Folder` を選択する。
 
@@ -51,9 +51,7 @@
 > Note: 本演習では ![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png) とついている部分が演習で実行するコマンドになります。
 
 ![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
-```shell
-ansible --version
-```
+`ansible --version`
 
 ```text
 ansible [core 2.20.0]
@@ -68,9 +66,7 @@ ansible [core 2.20.0]
 ```
 
 ![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
-```shell
-ansible all -m ping -o
-```
+`ansible all -m ping -o`
 
 ```text
 node1 | SUCCESS => {"changed": false,"ping": "pong"}
