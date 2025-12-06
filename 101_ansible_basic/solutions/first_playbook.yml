@@ -1,20 +1,20 @@
 ---
 - name: deploy httpd server
-  hosts: all
+  hosts: web
   become: yes
   tasks:
   - name: install httpd
-    dnf:
+    ansible.builtin.dnf:
       name: httpd
       state: latest
 
   - name: start & enabled httpd
-    service:
+    ansible.builtin.service:
       name: httpd
       state: started
       enabled: yes
 
   - name: copy index.html
-    copy:
+    ansible.builtin.copy:
       src: files/index.html
       dest: /var/www/html/

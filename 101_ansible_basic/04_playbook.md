@@ -1,5 +1,5 @@
 # Playbookの記述と実行
----
+
 先の演習ではAd-Hocコマンドを利用してモジュールを1つずつ実行しましたが、これはこれで便利な場面もありますが、実際に作業を行う場合はいくつのも手順を連続して実行することになります。その際に、順番に Ad-Hoc コマンドを実行するは手間がかかります。そこで、モジュールを順番に並べて一括して実行するために `playbook` (プレイブック)を作成します。playbook に呼出したいモジュールとパラメーターを順番に記述し、`ansible-playbook` コマンドに読み込ませることで、playbook の内容を一括して実行することが可能となります。
 
 Ansible でインフラを自動化するには、まず最初に Playbook を作成することから始まります。
@@ -8,7 +8,7 @@ Ansible でインフラを自動化するには、まず最初に Playbook を�
 
 
 ## Playbook の基礎
----
+
 `playbook` は [YAML](https://ja.wikipedia.org/wiki/YAML) 形式で記述します。YAMLに関して重要なポイントを以下に記載します。
 
 - YAML はデータを表記するためのテキストフォーマットであること。
@@ -25,11 +25,11 @@ Ansible でインフラを自動化するには、まず最初に Playbook を�
   become: yes
   tasks:
   - name: first task
-    yum:
+    ansible.builtin.dnf:
       name: httpd
       state: latest
   - name: second task
-    service:
+    ansible.builtin.service:
       name: httpd
       state: started
       enabled: yes
@@ -45,14 +45,14 @@ Ansible でインフラを自動化するには、まず最初に Playbook を�
 		"tasks": [
 			{
 				"name": "first task",
-				"yum": {
+				"ansible.builtin.dnf": {
 					"name": "httpd",
 					"state": "latest"
 				}
 			},
 			{
 				"name": "second task",
-				"service": {
+				"ansible.builtin.service": {
 					"name": "httpd",
 					"state": "started",
 					"enabled": "yes"
@@ -63,49 +63,59 @@ Ansible でインフラを自動化するには、まず最初に Playbook を�
 ]
 ```
 
+この Playbook は Excel に変換すると以下のようなイメージになります。
+
+![yaml_to_excel.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/yaml_to_excel.png)
+
+YAMLはデータ構造を表現するためのフォーマットであるため、このような変換が可能となります。
+
+> Note: Excel から YAML への変換も技術的には可能ですが、一般的にはあまり行われません。人が編集した Excel にはセル結合や余白セルが含まれるため、単純なルールで変換出来ないためです。
+
 ## playbook の作成
----
+
 実際に playbook を作成していきます。
 
 `~/working/first_playbook.yml` をエディタで開いてください。このファイルには先頭に `---` のみが記載されています。以下の説明に従いこのファイルへ追記を行い、playbook として完成させます。
 
+- `~` はホームディレクトリの短縮表現で、 `/student` や `$HOME` と同じ意味です。
+
 ここでは、WEBサーバーを構築する playbook を作成します。
 
 ### play パート
----
+
 以下のようにファイルに追記してください。
 
 ```yaml
 ---
 - name: deploy httpd server
-  hosts: all
+  hosts: web
   become: yes
 ```
 
 ここで記述した内容な以下になります。
 - `name:`: ここには、この playbook で行う処理の概要を記載します。省略可能です。日本語を使うことも可能です。
-- `hosts: all`: playbook の実行対象となるグループやノードを指定します。これは利用するインベントリー内に存在しているグループやノードである必要があります。
+- `hosts: web`: playbook の実行対象となるグループやノードを指定します。これは利用するインベントリー内に存在しているグループやノードである必要があります。
 - `become: yes`: この playbook では実行時に特権ユーザーへの権限昇格を行うことを宣言しています。ansible コマンドで利用した `-b` と同じ意味です。
 
-この部分は、playbook 内の `play` パートと呼ばれる部分で全体に関する挙動を宣言します。playbook全体のヘッダーのようなものだと理解してください。playパートで指定できる項目の[詳細については公式ドキュメント](https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html#play) を確認してください。
+この部分は、playbook 内の `play` パートと呼ばれる部分で全体に関する挙動を宣言します。playbook全体のヘッダーのようなものだと理解してください。playパートで指定できる項目の[詳細については公式ドキュメント](https://docs.ansible.com/projects/ansible/latest/reference_appendices/playbooks_keywords.html#play) を確認してください。
 
 ### task パート
----
+
 次に以下の状態となるように先のファイルへ追記します。インデントの階層に注意してください。
 
 ```yaml
 ---
 - name: deploy httpd server
-  hosts: all
+  hosts: web
   become: yes
   tasks:
   - name: install httpd
-    dnf:
+    ansible.builtin.dnf:
       name: httpd
       state: latest
 
   - name: start & enabled httpd
-    service:
+    ansible.builtin.service:
       name: httpd
       state: started
       enabled: yes
@@ -115,20 +125,22 @@ Ansible でインフラを自動化するには、まず最初に Playbook を�
 
 - `tasks:` これ以降が task パートであることを宣言しています。
 - `- name: ...` このタスクの説明を記載しています。省略可能
-- `dnf:` `service:` 呼び出すモジュールを指定しています。
+- `ansible.builtin.dnf:` `ansible.builtin.service:` 呼び出すモジュールを指定しています。
 - 以下はモジュールに与えられているパラメーターです。
   - `name: httpd` `state: latest`
   - `name: httpd` `state: started` `enabled: yes`
 
 ここで呼び出しているモジュールは以下になります。
-- `dnf`: httpd パッケージをインストールするために利用します。
-- `service`: インストールされた httpd を起動し、自動起動の設定を有効にしています。
+- `ansible.builtin.dnf`: httpd パッケージをインストールするために利用します。
+- `ansible.builtin.service`: インストールされた httpd を起動し、自動起動の設定を有効にしています。
 
 作成した playbook に構文エラーがないかを以下のコマンドで確認できます。
 
-`cd ~/working`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`cd ~/working`
 
-`ansible-playbook first_playbook.yml --syntax-check`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook first_playbook.yml --syntax-check`
 
 ```text
 playbook: first_playbook.yml
@@ -138,66 +150,64 @@ playbook: first_playbook.yml
 ```text
 $ ansible-playbook first_playbook.yml --syntax-check
 
-ERROR! Syntax Error while loading YAML.
-  expected <block end>, but found '<block sequence start>'
+[ERROR]: YAML parsing failed: While parsing a block mapping did not find expected key.
+Origin: /student/test1.yaml:9:7
 
-The error appears to be in '/notebooks/working/first_playbook.yml': line 6, column 2, but may
-be elsewhere in the file depending on the exact syntax problem.
-
-The offending line appears to be:
-
-  tasks:
- - name: install httpd
- ^ here
+7     ansible.builtin.dnf:
+8        name: httpd
+9       state: latest
+        ^ column 7
 ```
 
 この場合には、playbook のインデントなどがサンプルと同じになっているかを再度確認してください。
 
 ## playbook の実行
----
+
 作成した playbook を実行します。playbook の実行には `ansible-playbook` コマンドを利用します。成功すれば httpd サーバーが起動して apache の初期画面が参照できるはずです。
 
-`ansible-playbook first_playbook.yml`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook first_playbook.yml`
 
 ```text
 PLAY [deploy httpd server] **************************************************
 
 TASK [Gathering Facts] ******************************************************
-ok: [node-2]
-ok: [node-3]
-ok: [node-1]
+ok: [node2]
+ok: [node3]
+ok: [node1]
 
 TASK [install httpd] ********************************************************
-changed: [node-1]
-changed: [node-2]
-changed: [node-3]
+changed: [node1]
+changed: [node2]
+changed: [node3]
 
 TASK [start & enabled httpd] ************************************************
-changed: [node-1]
-changed: [node-2]
-changed: [node-3]
+changed: [node1]
+changed: [node2]
+changed: [node3]
 
 PLAY RECAP ******************************************************************
-node-1  : ok=3 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
-node-2  : ok=3 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
-node-3  : ok=3 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node1  : ok=3 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node2  : ok=3 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node3  : ok=3 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
 ```
 
-上記のような出力となれば成功です。以下のリンクをクリックし、node-1,2,3 に対してブラウザでアクセスしてサイトの動作を確認してください。
+上記のような出力となれば成功です。node1,2,3 に対してブラウザでアクセスしてサイトの動作を確認してください。
 
-- [node-1]({{TRAFFIC_HOST1_8081}})
-- [node-2]({{TRAFFIC_HOST1_8082}})
-- [node-3]({{TRAFFIC_HOST1_8083}})
+アクセス先のIPアドレスを調べるには以下のコマンドを実行します。
 
-> Note: Jupyter 上で演習をしている場合は、アクセスするIPアドレスを `~/inventory_file` で確認し、`http_access=http://35.73.128.87:8081` に示されたアドレスへブラウザでアクセスしてください。このアドレスは各ノードのポート80へリダイレクトされます。
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`curl 169.254.169.254/latest/meta-data/public-ipv4`
 
-以下のような画面が表示されれば成功です。
+- node1: http://<自分の code-server IPアドレス>:8081
+- node2: http://<自分の code-server IPアドレス>:8082
+- node3: http://<自分の code-server IPアドレス>:8083
 
-![apache_top_page.png](https://raw.githubusercontent.com/irixjp/katacoda-scenarios/master/materials/images/apache_top_page.png)
+apache の初期画面が表示されれば成功です。アクセス出来ない場合には設定に失敗している可能性があります。Playbookと実行コマンドを確認してください。
 
 
 ## タスクの追加
----
+
 作成した playbook にサイトのトップページを配布するタスクを追加します。
 
 `~/working/files/index.html` をエディタで開きます。
@@ -213,67 +223,70 @@ node-3  : ok=3 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
 ```yaml
 ---
 - name: deploy httpd server
-  hosts: all
+  hosts: web
   become: yes
   tasks:
   - name: install httpd
-    dnf:
+    ansible.builtin.dnf:
       name: httpd
       state: latest
 
   - name: start & enabled httpd
-    service:
+    ansible.builtin.service:
       name: httpd
       state: started
       enabled: yes
 
   - name: copy index.html
-    copy:
+    ansible.builtin.copy:
       src: files/index.html
       dest: /var/www/html/
 ```
 
 編集が完了したら、構文チェックを実施した後に playbook を実行してみましょう。
 
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook first_playbook.yml --syntax-check`
 
-`ansible-playbook first_playbook.yml --syntax-check`{{execute}}
-
-`ansible-playbook first_playbook.yml`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook first_playbook.yml`
 
 ```text
 PLAY [deploy httpd server] **************************************************
 
 TASK [Gathering Facts] ******************************************************
-ok: [node-2]
-ok: [node-3]
-ok: [node-1]
+ok: [node2]
+ok: [node3]
+ok: [node1]
 
 TASK [install httpd] ********************************************************
-ok: [node-1]
-ok: [node-3]
-ok: [node-2]
+ok: [node1]
+ok: [node3]
+ok: [node2]
 
 TASK [start & enabled httpd] ************************************************
-ok: [node-2]
-ok: [node-1]
-ok: [node-3]
+ok: [node2]
+ok: [node1]
+ok: [node3]
 
 TASK [copy index.html] ******************************************************
-changed: [node-1]
-changed: [node-3]
-changed: [node-2]
+changed: [node1]
+changed: [node3]
+changed: [node2]
 
 PLAY RECAP ******************************************************************
-node-1  : ok=4 changed=1 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
-node-2  : ok=4 changed=1 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
-node-3  : ok=4 changed=1 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node1  : ok=4 changed=1 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node2  : ok=4 changed=1 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node3  : ok=4 changed=1 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
 ```
 
 正常終了したら再びブラウザで3台のノードへアクセスしてください。正しく playbook が記述され、動作したのならば先程作成した `index.html` の内容が表示されるはずです。
 
+> Note: `curl` コマンドを使って `curl node1` のように実行して確認してもOKです。
+
 
 ## 冪等性(べきとうせい)
----
+
 Ansible のモジュールを利用するメリットして、記述量を大幅に減らせるという解説を行いましたが、その他にもメリットがあります。それが `冪等性` です。
 
 この演習では `ansible-playbook first_playbook.yml` を2回実行しています。httpd のインストールと起動を行った時、そしてサイトのトップページを追加したときです。つまり、httpd のインストールと起動のタスクは2回実行されています。しかし、2回目の playbook 実行にもエラー等は起きていません。これは Ansible の `冪等性` が機能しているからです。
@@ -287,35 +300,36 @@ Ansible のモジュールを利用するメリットして、記述量を大幅
 
 ここで再度この playbook を実行してみましょう。3つのタスクの状態がどのようになるか考えてから実行してください。
 
-`ansible-playbook first_playbook.yml`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook first_playbook.yml`
 
 ```text
 PLAY [deploy httpd server] **************************************************
 
 TASK [Gathering Facts] ******************************************************
-ok: [node-3]
-ok: [node-1]
-ok: [node-2]
+ok: [node3]
+ok: [node1]
+ok: [node2]
 
 TASK [install httpd] ********************************************************
-ok: [node-2]
-ok: [node-1]
-ok: [node-3]
+ok: [node2]
+ok: [node1]
+ok: [node3]
 
 TASK [start & enabled httpd] ************************************************
-ok: [node-1]
-ok: [node-2]
-ok: [node-3]
+ok: [node1]
+ok: [node2]
+ok: [node3]
 
 TASK [copy index.html] ******************************************************
-ok: [node-3]
-ok: [node-1]
-ok: [node-2]
+ok: [node3]
+ok: [node1]
+ok: [node2]
 
 PLAY RECAP ******************************************************************
-node-1  : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
-node-2  : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
-node-3  : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node1  : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node2  : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node3  : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
 ```
 
 全てのタスクは `ok` となったはずです。playbook 実行時の最後の `PLAY RECAP` 部分を並べてみると結果の差が分かりやすく確認できます。ここでは各ノードにおいて、何個のタスクが `changed` になったのかを比較してください。
@@ -324,25 +338,25 @@ node-3  : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
 1回目(タスク2個がchanged)
 ```text
 PLAY RECAP ******************************************************************
-node-1  : ok=3 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
-node-2  : ok=3 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
-node-3  : ok=3 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node1  : ok=3 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node2  : ok=3 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node3  : ok=3 changed=2 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
 ```
 
 2回目(タスク1個がchanged)
 ```text
 PLAY RECAP ******************************************************************
-node-1  : ok=4 changed=1 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
-node-2  : ok=4 changed=1 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
-node-3  : ok=4 changed=1 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node1  : ok=4 changed=1 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node2  : ok=4 changed=1 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node3  : ok=4 changed=1 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
 ```
 
 3回目(changedは0)
 ```text
 PLAY RECAP ******************************************************************
-node-1  : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
-node-2  : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
-node-3  : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node1  : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node2  : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
+node3  : ok=4 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
 ```
 
 では、この冪等性は何が嬉しいのかというと、
@@ -360,5 +374,6 @@ Ansible の各モジュールはこの冪等性を考慮するように作られ
 > Note: ただし、Ansibleも全てのモジュールが完全な冪等性を保証しているわけではありません。モジュールの中には shell のように何が実行されるかわからないものや、操作対象（NW系機器やクラウド環境）によっては原理的に冪等性の確保が難しいものも存在しています。こういったモジュールを使う場合は利用者が注意を払う必要があります。
 
 ## 演習の解答
-- [first\_playbook.yml](https://github.com/irixjp/katacoda-scenarios/blob/master/materials/solutions/first_playbook.yml)
-- [files/index.html](https://github.com/irixjp/katacoda-scenarios/blob/master/materials/solutions/files/index.html)
+
+- [first\_playbook.yml](https://github.com/irixjp/aitac-automation/blob/main/101_ansible_basic/solutions/first_playbook.yml)
+- [files/index.html](https://github.com/irixjp/aitac-automation/blob/main/101_ansible_basic/solutions/files/index.html)
