@@ -1,0 +1,16 @@
+FROM quay.io/centos/centos:stream10
+
+LABEL maintainer "@irix_jp"
+ENV container podman
+
+RUN dnf update -y && \
+    dnf install -y systemd openssh-server iproute procps which tree sudo util-linux && \
+    dnf clean all
+
+RUN useradd student && \
+    echo 'student ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+VOLUME [ "/sys/fs/cgroup" ]
+STOPSIGNAL SIGRTMIN+3
+
+CMD ["/usr/lib/systemd/systemd"]

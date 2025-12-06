@@ -1,0 +1,49 @@
+---
+- name: Cleanup handson environment
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Ensure class_id variable is set
+      fail:
+        msg: "The variable 'class_id' must be defined."
+      when: class_id is not defined
+
+    - name: Delete the inventory file
+      file:
+        path: "{{ class_id }}_podman_inventory"
+        state: absent
+
+    - name: Collect instance info
+      amazon.aws.ec2_instance_info:
+        region: "{{ REGION }}"
+        filters:
+          "tag:class_id": "{{ class_id }}"
+      register: ec2
+
+    - debug: var=ec2.instances
+
+    - name: Retrive instance ids
+      set_fact:
+        delete_ids: "{{ ec2.instances | community.general.json_query(query) }}"
+      vars:
+        query: "[*].instance_id"
+
+    - debug: var=delete_ids
+
+    - name: Delete instances
+      amazon.aws.ec2_instance:
+        state: absent
+        instance_ids: "{{ delete_ids }}"
+        region: "{{ REGION }}"
+      when: delete_ids | length > 0
+
+    - name: Delete keypair
+      amazon.aws.ec2_key:
+        name: "{{ KEYPAIR_NAME }}-{{ class_id }}"
+        region: "{{ REGION }}"
+        state: absent
+
+    - name: delete keypair
+      file:
+        path: "{{ class_id }}-{{ KEYPAIR_NAME }}.pem"
+        state: absent

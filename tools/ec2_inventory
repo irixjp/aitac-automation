@@ -1,0 +1,23 @@
+all:
+  hosts:
+    localhost:
+      ansible_connection: local
+      ansible_python_interpreter: /Users/tnakajim/.pyenv/shims/python
+  vars:
+    # VPC 関係の設定
+    REGION: ap-northeast-1
+    RESOURCE_TAG_ROLE: aitac-automation-class
+    VPC_NAME: aitac-automation-vpc
+    VPC_CIDR_BLOCK: 10.1.0.0/23
+    SUBNET_CIDR_BLOCK: 10.1.0.0/24
+    SEC_GROUP_NAME: aitac-automation-sg
+    SEC_GROUP_DESC: security group for aitac handson student env
+
+    # EC2 instance 関係の設定
+    KEYPAIR_NAME: aitac-keypair
+    # ここから確認 https://www.centos.org/download/aws-images/
+    AMI_ID: ami-00600e5e7c9a1c412
+    INSTANCE_NAME_PREFIX: aitac-class
+    INSTANCE_TYPE: t3.medium
+    VOLUME_SIZE: 30
+    EC2_USER_NAME: ec2-user

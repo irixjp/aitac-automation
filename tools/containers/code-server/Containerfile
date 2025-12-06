@@ -1,0 +1,24 @@
+FROM quay.io/centos/centos:stream10
+
+LABEL maintainer "@irix_jp"
+
+RUN dnf update -y && \
+    dnf install -y glibc-all-langpacks git sudo which tree jq util-linux sudo procps iproute iputils vim && \
+    dnf install -y epel-release && dnf install -y sshpass && \
+    dnf install -y python3-pip gcc java-25-openjdk && \
+    dnf clean all
+
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+RUN useradd student -m -d /student && \
+    mkdir -p /student && \
+    chown -R student:student /student && \
+    echo 'student ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+USER student
+WORKDIR /student
+
+RUN code-server --install-extension redhat.ansible
+
+RUN pip3 install --user ansible ansible-lint yamllint
+RUN pip3 install --user ansible-rulebook

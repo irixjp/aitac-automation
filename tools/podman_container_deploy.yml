@@ -1,0 +1,290 @@
+---
+- hosts: all
+  vars:
+    podman_network_name: aitac-student-net
+    podman_network_cidr: 172.22.22.0/24
+    podman_network_gateway: 172.22.22.254
+    image_code_server: docker.io/irixjp/code-server:latest
+    image_client: docker.io/irixjp/podman-systemd
+    podman_user_name: ec2-user
+    podman_user_home: /home/{{ podman_user_name }}
+  tasks:
+    - name: Ensure class_id variable is set
+      fail:
+        msg: "The variable 'class_id' must be defined."
+      when: class_id is not defined
+
+    - name: ensure lingering enabled
+      ansible.builtin.command: "loginctl enable-linger {{ podman_user_name }}"
+      args:
+        creates: /var/lib/systemd/linger/{{ podman_user_name }}
+
+    - name: create user systemd directory
+      ansible.builtin.file:
+        path: "{{ podman_user_home }}/.config/systemd/user"
+        state: directory
+        recurse: yes
+
+    - name: create podman network
+      containers.podman.podman_network:
+        name: "{{ podman_network_name }}"
+        subnet: "{{ podman_network_cidr }}"
+        gateway: "{{ podman_network_gateway }}"
+        state: present
+
+    - name: run code-server
+      containers.podman.podman_container:
+        name: code-server
+        hostname: code-server
+        image: "{{ image_code_server }}"
+        state: started
+        ports:
+          - "8080:8080"
+          - "8888:8888"
+        cap_add:
+          - CAP_NET_RAW
+        network: "{{ podman_network_name }}"
+        ip: 172.22.22.1
+        command: code-server
+        generate_systemd:
+          path: "{{ podman_user_home }}/.config/systemd/user"
+          restart_policy: always
+          stop_timeout: 120
+          names: true
+
+    - name: run ansible managed nodes
+      containers.podman.podman_container:
+        name: "node{{ item }}"
+        hostname: "node{{ item }}"
+        image: "{{ image_client }}"
+        state: started
+        ports:
+          - "808{{ item }}:80"
+        network: "{{ podman_network_name }}"
+        ip: "172.22.22.10{{ item }}"
+        privileged: true
+        volumes:
+          - "/sys/fs/cgroup:/sys/fs/cgroup:ro"
+        generate_systemd:
+          path: "{{ podman_user_home }}/.config/systemd/user"
+          restart_policy: always
+          stop_timeout: 120
+          names: true
+      loop: [1, 2, 3, 4, 5, 6]
+
+    - name: Re-execute systemd manager
+      ansible.builtin.systemd_service:
+        daemon_reexec: true
+        scope: user
+
+    - name: Enable container on systemd
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+        enabled: true
+        scope: user
+      loop:
+        - container-code-server.service
+        - container-node1.service
+        - container-node2.service
+        - container-node3.service
+        - container-node4.service
+        - container-node5.service
+        - container-node6.service
+
+    - name: Generate an OpenSSH keypair with the default values (4096 bits, rsa)
+      community.crypto.openssh_keypair:
+        path: id_rsa_podman
+
+    # Configure nodes
+    - name: Generate a script for node setup
+      ansible.builtin.copy:
+        dest: node_setup_script.sh
+        content: |
+          mkdir -p /home/student/.ssh
+          chmod 700 /home/student/.ssh
+          chown student:student /home/student/.ssh
+          cp /tmp/authorized_keys /home/student/.ssh/authorized_keys
+          chmod 600 /home/student/.ssh/authorized_keys
+          chown student:student /home/student/.ssh/authorized_keys
+
+    - name: Put authorized_keys to nodes
+      containers.podman.podman_container_copy:
+        src: id_rsa_podman.pub
+        dest: /tmp/authorized_keys
+        container: "{{ item }}"
+      loop:
+        - node1
+        - node2
+        - node3
+        - node4
+        - node5
+        - node6
+
+    - name: Put script to nodes
+      containers.podman.podman_container_copy:
+        src: node_setup_script.sh
+        dest: /tmp/node_setup_script.sh
+        container: "{{ item }}"
+      loop:
+        - node1
+        - node2
+        - node3
+        - node4
+        - node5
+        - node6
+
+    - name: Execute script on nodes
+      containers.podman.podman_container_exec:
+        name: "{{ item }}"
+        command: "bash /tmp/node_setup_script.sh"
+      loop:
+        - node1
+        - node2
+        - node3
+        - node4
+        - node5
+        - node6
+
+    # Configure code-server
+    - name: Generate ansible.cfg
+      ansible.builtin.copy:
+        dest: .ansible.cfg
+        content: |
+          [defaults]
+          interpreter_python   = /usr/bin/python3
+          deprecation_warnings = False
+          host_key_checking    = False
+          force_color          = True
+          forks                = 2
+          inventory            = /student/inventory
+
+          [ssh_connection]
+          ssh_args = -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+
+    - name: Generate ansible.cfg
+      ansible.builtin.copy:
+        dest: inventory
+        content: |
+          [web]
+          node1 ansible_host=172.22.22.101
+          node2 ansible_host=172.22.22.102
+          node3 ansible_host=172.22.22.103
+
+          [app]
+          node4 ansible_host=172.22.22.104
+          node5 ansible_host=172.22.22.105
+
+          [other]
+          node6 ansible_host=172.22.22.106
+
+          [all:vars]
+          ansible_user=student
+          ansible_ssh_private_key_file=/student/id_rsa_podman
+
+    - name: check password file container_pass.txt
+      ansible.builtin.stat:
+        path: code_server_pass.txt
+      register: ret_code_server_pass
+
+    - when: ret_code_server_pass.stat.exists
+      block:
+        - name: load code-server password
+          ansible.builtin.shell: cat code_server_pass.txt
+          changed_when: False
+          register: load_content
+
+        - ansible.builtin.set_fact:
+            code_server_password: "{{ load_content.stdout }}"
+
+    - when: not ret_code_server_pass.stat.exists
+      block:
+        - name: generate passwords for containers
+          ansible.builtin.set_fact:
+            code_server_password: "{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=12') }}"
+
+        - name: write password to file
+          ansible.builtin.copy:
+            dest: code_server_pass.txt
+            content: |
+              {{ code_server_password }}
+
+    - name: Generate code-server config.yaml
+      ansible.builtin.copy:
+        dest: config.yaml
+        content: |
+          bind-addr: 0.0.0.0:8080
+          auth: password
+          password: {{ code_server_password }}
+          cert: false
+
+    - name: Generate code-server settings.json
+      ansible.builtin.copy:
+        dest: settings.json
+        content: |
+          {
+            "redhat.telemetry.enabled": false,
+            "extensions.autoUpdate": false
+          }
+
+    - name: Copy files
+      containers.podman.podman_container_copy:
+        src: "{{ item }}"
+        dest: /student
+        container: code-server
+      loop:
+        - id_rsa_podman
+        - .ansible.cfg
+        - inventory
+
+    - name: Copy config.yaml
+      containers.podman.podman_container_copy:
+        src: config.yaml
+        dest: /student/.config/code-server
+        container: code-server
+
+    - name: Copy settings.json
+      containers.podman.podman_container_copy:
+        src: settings.json
+        dest: /student/.local/share/code-server/User
+        container: code-server
+
+    - name: Create own server info
+      ansible.builtin.copy:
+        dest: code_server_info.txt
+        content: |
+          {{ inventory_hostname }} public_endpoint=http://{{ inventory_hostname }}:8080/ local_endpoint=http://{{ ansible_default_ipv4.address }}:8080 password={{ code_server_password }}
+
+    - name: Restart code-server container
+      ansible.builtin.systemd_service:
+        name: container-code-server.service
+        state: restarted
+        scope: user
+      register: ret_code_server_restart
+      until: ret_code_server_restart is not failed
+      retries: 30
+      delay: 10
+
+    # code-server の情報を収集してローカルに集約
+    - ansible.builtin.slurp:
+        src: code_server_info.txt
+      register: slurped_files
+
+    - debug: var=slurped_files
+
+    - name: Store contents to local file
+      ansible.builtin.copy:
+        dest: "{{ class_id }}_class_env_info.txt"
+        content: |
+          {% for host in vars.ansible_play_hosts %}
+          {{ vars.hostvars[host].slurped_files.content | b64decode }}
+          {% endfor %}
+      run_once: true
+      delegate_to: localhost
+
+    - name: Remove empty lines
+      ansible.builtin.replace:
+        path: "{{ class_id }}_class_env_info.txt"
+        regexp: '^\s*\n'
+        replace: ''
+      run_once: true
+      delegate_to: localhost

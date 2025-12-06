@@ -1,0 +1,24 @@
+環境構築
+- class_id 4〜6文字程度の文字列を指定
+- instance_num 起動する演習環境数(インスタンス数)を指定
+#+begin_src shell
+  ansible-playbook -i ec2_inventory ec2_vpc_prepare.yml
+
+  ansible-playbook -i ec2_inventory ec2_instance_create.yml -e "class_id=xxyy" -e "instance_num=2"
+
+  ansible-playbook -i xxyy_podman_inventory podman_install.yml
+
+  ansible-playbook -i xxyy_podman_inventory podman_container_deploy.yml
+#+end_src
+
+環境削除
+#+begin_src shell
+  ansible-playbook -i ec2_inventory ec2_instance_delete.yml -e "class_id=xxyy"
+
+  ansible-playbook -i ec2_inventory ec2_vpc_cleanup.yml
+#+end_src
+
+起動しているインスタンスの確認
+#+begin_src shell
+  aws ec2 describe-instances --output=table --query 'Reservations[].Instances[].{InstanceId: InstanceId, PrivateIp: join(`, `, NetworkInterfaces[].PrivateIpAddress), GlobalIP: join(`, `, NetworkInterfaces[].Association.PublicIp), Platform:Platform, State: State.Name, SecurityGroupId: join(`, `, SecurityGroups[].GroupId) ,Name: Tags[?Key==`Name`].Value|[0]}'
+#+end_src

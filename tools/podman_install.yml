@@ -1,0 +1,21 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - ansible.builtin.ping:
+
+    - name: OS update
+      ansible.builtin.dnf:
+        name: '*'
+        state: latest
+
+    - name: install podman
+      ansible.builtin.dnf:
+        name: podman
+        state: latest
+
+    - name: reboot
+      ansible.builtin.reboot:
+        reboot_timeout: 180
+
+    - ansible.builtin.ping:
