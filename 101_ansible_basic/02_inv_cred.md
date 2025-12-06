@@ -8,15 +8,9 @@ Ansible の基本となるインベントリー(inventory)と認証情報(creden
 ---
 まず以下のコマンドを実行してください。これは Ansible を使って3台の演習ノードのディスク使用量を確認しています。
 
-<span style="white-space: nowrap;">
-  <img src="https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png" style="height:1.2em; vertical-align:middle;">
-  <code>cd ~/</code>
-</span>
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png) `cd ~/`
 
-<span style="white-space: nowrap;">
-  <img src="https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png" style="height:1.2em; vertical-align:middle;">
-  <code>ansible all -m shell -a 'df -h'</code>
-</span>
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)`ansible all -m shell -a 'df -h'`
 
 ```text
 node1 | CHANGED | rc=0 >>
