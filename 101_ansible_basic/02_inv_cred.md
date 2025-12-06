@@ -1,11 +1,11 @@
 # Ansible の基礎、インベントリー、認証情報
----
+
 Ansible の基本となるインベントリー(inventory)と認証情報(credential)について学習します。これは Ansible を動かす上で最低限準備する3つの情報のうちの2つに該当します。
 
 ![ansible_structure.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/ansible_structure.png)
 
 ## 演習環境での Ansible の実行
----
+
 まず以下のコマンドを実行してください。これは Ansible を使って3台の演習ノードのディスク使用量を確認しています。
 
 ![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png) 
@@ -48,7 +48,7 @@ tmpfs           1.8G   16M  1.8G   1% /var/log/journal
 これで複数のサーバーからディスク使用量の情報が取得できました。しかし、このサーバーはどのように決定されたのでしょうか。もちろんこれは演習用に予め設定されているものですが、その情報は Ansible のどこに設定されているか疑問を持つ方もいるはずです。今からその設定について確認していきます。
 
 ## ansible.cfg
----
+
 まず以下のコマンドを実行します。
 
 ![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)

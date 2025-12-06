@@ -4,7 +4,7 @@ LABEL maintainer "@irix_jp"
 ENV container podman
 
 RUN dnf update -y && \
-    dnf install -y systemd openssh-server iproute procps which tree sudo util-linux && \
+    dnf install -y systemd openssh-server iproute procps which tree sudo util-linux hostname && \
     dnf clean all
 
 RUN useradd student && \

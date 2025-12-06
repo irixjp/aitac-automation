@@ -1,11 +1,11 @@
 # Ad-Hocコマンドとモジュール
----
+
 ここでは Ansible における重要な要素である `Module` (モジュール) と、モジュールを実行するための `Ad-hoc コマンド` について学習します。
 
-![structure.png](https://raw.githubusercontent.com/irixjp/katacoda-scenarios/master/materials/images/structure.png)
+![ansible_structure.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/ansible_structure.png)
 
 ## モジュールとは
----
+
 モジュールとは「インフラ作業でよくある操作を部品化」したものです。Ansible は膨大な数のモジュールを備えています。正確な表現ではないですが、「インフラ作業におけるライブラリ集」だと言うこともできるかもしれません。
 
 モジュールが提供されることで、自動化の記述をシンプルにすることができます。1つの例として、Ansible で提供される `dnf` モジュールについて見てみます。
@@ -58,40 +58,45 @@ function dnf_install () {
 これらの無駄を排除し、皆のナレッジを集約して品質の高いインフラ自動化を実現するために Ansible のモジュールが存在しています。モジュールには「インフラを自動化するときによくある考慮事項」が予め組み込まれており、ユーザーは細かな制御を実装することなく自動化を実装可能になります。つまり、車輪の再発明を避けて、本来やりたい自動化の実装に集中することができ、結果として自動化の記述量を大幅に減らすことへとつながります。
 
 ## モジュールの一覧
----
-モジュールは`collection`という形式で管理され、それぞれのcollectionには関連するモジュールが複数含まれています。[Collectionの一覧](https://docs.ansible.com/ansible/latest/collections/index.html) から必要に応じて自分の利用したい collection を探し、インストールして利用します。
+
+モジュールは`collection`という形式で管理され、それぞれのcollectionには関連するモジュールが複数含まれています。[Collectionの一覧](https://docs.ansible.com/projects/ansible/latest/collections/index.html) から必要に応じて自分の利用したい collection を探し、インストールして利用します。
 
 > Note: バージョン 2.9 までのAnsibleはデフォルトで全てのモジュールが含んでおりましたが、あまりにモジュールの数が増えすぎてしまったため、現在の形式へと変更されました(2.10以降)
 
-初期インストール状態のAnsibleは `ansible.builtin` コレクションのみがインストールされています。ansible.builtin がもつモジュールの一覧は [こちら](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/index.html#modules) から確認できます。
+初期インストール状態のAnsibleは `ansible.builtin` コレクションのみがインストールされています。ansible.builtin がもつモジュールの一覧は [こちら](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/index.html#modules) から確認できます。
 
 > Note: Collection の扱い方については後続の演習に含まれます。
 
 現在の環境でどのようなモジュールが利用可能になっているかは `ansible-doc` コマンドで参照することができます。
 このコマンドはインストール済みのモジュールの一覧を表示します。
 
-`ansible-doc -l`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-doc -l`
 
 ```text
-add_host        Add a host (and alternatively a group) to the ansible-playbook in-memory inventor...
-apt             Manages apt-packages
-apt_key         Add or remove an apt key
-apt_repository  Add and remove APT repositories
-assemble        Assemble configuration files from fragments
-assert          Asserts given expressions are true
-async_status    Obtain status of asynchronous task
-blockinfile     Insert/update/remove a text block surrounded by marker lines
+amazon.aws.autoscaling_group                   Create or delete AWS AutoScaling Groups (ASGs)
+amazon.aws.autoscaling_group_info              Gather information about EC2 Auto Scaling Groups (ASGs) in AWS 
+amazon.aws.autoscaling_instance                manage instances associated with AWS AutoScaling Groups (ASGs) 
+amazon.aws.autoscaling_instance_info           describe instances associated with AWS AutoScaling Groups (ASGs...
+amazon.aws.autoscaling_instance_refresh        Start or cancel an EC2 Auto Scaling Group (ASG) instance refres...
+(省略)
 ```
 > Note: f で進む、b で戻る、q で終了。
 
 特定のモジュールのドキュメントを参照するには以下のように実行します。
 
-`ansible-doc dnf`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-doc ansible.builtin.dnf`
 
 ```text
-> ANSIBLE.BUILTIN.DNF    (/opt/kata-materials/ansible/lib/python3.8/site-packages/ansible/modules/dnf.py)
+> MODULE ansible.builtin.dnf (/student/.local/lib/python3.12/site-packages/ansible/modules/dnf.py)
 
-        Installs, upgrade, removes, and lists packages and groups with the `dnf' package manager.
+  Installs, upgrade, removes, and lists packages and groups with the dnf package manager.
+
+  * note: This module has a corresponding action plugin.
+
+OPTIONS (red indicates it is required):
+(省略)
 ```
 > Note: f で進む、b で戻る、q で終了。
 
@@ -100,8 +105,8 @@ blockinfile     Insert/update/remove a text block surrounded by marker lines
 > Note: モジュールの利用方法の Examples は非常に参考になります。
 
 ## Ad-hoc コマンド
----
-これらのモジュールをAnsibleから1つだけ呼び出して Ansible に小さな仕事を実行させることができます。この方法を `Ad-hoc コマンド` とよびます。
+
+これらのモジュールをAnsibleで1つだけ実行して Ansible に小さな仕事を実行させることができます。この方法を `Ad-hoc コマンド` とよびます。
 
 コマンドの形式は以下になります。
 
@@ -114,126 +119,130 @@ $ ansible all -m <module_name> -a '<parameters>'
 
 Ad-hoc コマンドを利用して、いくつかのモジュールを実際に動作させてみましょう。
 
-### ping
----
-[`ping`](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/ping_module.html) モジュールを実行してみましょう。これは Ansible が操作対象のノードに対して「Ansible としての疎通」が可能かどうかを判定するモジュールです(ネットワークで利用するICMPとは意味合いが異なります)。pingモジュールのパラメーターは省略可能です。
+### ansible.builtin.ping
 
-`ansible all -m ping`{{execute}}
+[`ansible.builtin.ping`](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/ping_module.html) モジュールを実行してみましょう。これは Ansible が操作対象のノードに対して「Ansible としての疎通」が可能かどうかを判定するモジュールです(ネットワークで利用するICMPとは意味合いが異なります)。pingモジュールのパラメーターは省略可能です。
+
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible all -m ansible.builtin.ping`
 
 ```text
-node-1 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python"
-    },
+node2 | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-node-2 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python"
-    },
+node1 | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-node-3 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python"
-    },
-    "changed": false,
-    "ping": "pong"
+(省略)
 ```
 
 
-### shell
----
+### ansible.builtin.shell
+
 次に、[`shell`](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/shell_module.html) モジュールを呼び出してみましょう。これは対象のノード上で任意のコマンドを実行し、その結果を回収するコマンドです。
 
-`ansible all -m shell -a 'hostname'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible all -m ansible.builtin.shell -a 'hostname'`
 
 ```text
-node-1 | CHANGED | rc=0 >>
-node-1
-
-node-3 | CHANGED | rc=0 >>
-node-3
-
-node-2 | CHANGED | rc=0 >>
-node-2
+node2 | CHANGED | rc=0 >>
+node2
+node1 | CHANGED | rc=0 >>
+node1
+node3 | CHANGED | rc=0 >>
+node3
+node4 | CHANGED | rc=0 >>
+(省略)
 ```
 
 他にもいくつかのコマンドを実行して結果を確かめてください。
 
 カーネル情報を取得する
 
-`ansible all -m shell -a 'uname -a'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible all -m ansible.builtin.shell -a 'uname -a'`
 
 
 日付を取得する
 
-`ansible all -m shell -a 'date'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible all -m ansible.builtin.shell -a 'date'`
 
+> Note: UTCで表示されるため、+9時間すると日本の時間になります。
 
 ディスクの使用状況を取得する
 
-`ansible all -m shell -a 'df -h'`{{execute}}
-
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible all -m ansible.builtin.shell -a 'df -h'`
 
 インストールされたパッケージの情報から特定の情報を抽出する
 
-`ansible all -m shell -a 'rpm -qa |grep bash'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible all -m ansible.builtin.shell -a 'rpm -qa |grep bash'`
 
 
-### dnf
----
-[`dnf`](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/dnf_module.html#ansible-collections-ansible-builtin-dnf-module)はパッケージの操作を行うモジュールです。このモジュールを利用して新しくパッケージをインストールしてみます。
+### ansible.builtin.dnf
 
-今回は screen パッケージをインストールします。まず現在の環境に screen がインストールされていないことを確認します。
+[`ansible.builtin.dnf`](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/dnf_module.html#ansible-collections-ansible-builtin-dnf-module)はパッケージの操作を行うモジュールです。このモジュールを利用して新しくパッケージをインストールしてみます。
 
-`ansible node-1 -m shell -a 'which screen'`{{execute}}
+今回は tmux パッケージをインストールします。まず現在の環境に tmux がインストールされていないことを確認します。
+
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible node1 -m ansible.builtin.shell -a 'which tmux'`
 
 ```text
-node-1 | FAILED | rc=1 >>
-which: no screen in (/home/centos/.local/bin:/home/centos/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin)non-zero return code
+ERROR]: Task failed: Module failed: non-zero return code
+Origin: <adhoc 'ansible.builtin.shell' task>
+
+{'action': 'ansible.builtin.shell', 'args': {'_raw_params': 'which tmux'}, 'timeout': 0, 'async_val': 0, 'poll': 15}
+
+node1 | FAILED | rc=1 >>
+which: no tmux in (/home/student/.local/bin:/home/student/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin)non-zero return code
 ```
 
-このコマンドは screen が存在しないためエラーになるはずです。
+このコマンドはまだ tmux がインストールされていないためエラーになるはずです。
 
-では、 dnf モジュールで screen のインストールを行います。
+では、 ansible.builtin.dnf モジュールで tmux のインストールを行います。
 
-`ansible node-1 -b -m dnf -a 'name=screen state=latest'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible node1 -b -m ansible.builtin.dnf -a 'name=tmux state=latest'`
 
 ```text
-node-1 | CHANGED => {
+node1 | CHANGED => {
     "ansible_facts": {
-        "discovered_interpreter_python": "/usr/libexec/platform-python"
+        "pkg_mgr": "dnf"
     },
     "changed": true,
     "msg": "",
     "rc": 0,
     "results": [
-        "Installed: screen-4.6.2-12.el8.x86_64"
+        "Installed: tmux-3.3a-13.20230918gitb202a2f.el10.x86_64"
     ]
 }
 ```
 
 - `-b`: become オプション。これは接続先のノードでの操作に root 権限を利用するためのオプションです。パッケージのインストールには root 権限が必要となるため、このオプションをつけています。つけない場合、このコマンドは失敗します。
 
-再度、screen コマンドの確認を行うと、今度はパッケージがインストールされたため成功するはずです。
+再度、tmux コマンドの確認を行うと、今度はパッケージがインストールされたため成功するはずです。
 
-`ansible node-1 -m shell -a 'which screen'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible node1 -m ansible.builtin.shell -a 'which tmux'`
 
 ```text
-node-1 | CHANGED | rc=0 >>
-/usr/bin/screen
+node1 | CHANGED | rc=0 >>
+/usr/bin/tmux
 ```
 
-### setup
----
-[`setup`](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/setup_module.html) は対象ノードの情報を取得するモジュールです。取得された情報は `ansible_xxx` という変数名で自動的にアクセス可能となります。
+### ansible.builtin.setup
+
+[`ansible.builtin.setup`](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/setup_module.html) は対象ノードの情報を取得するモジュールです。取得された情報は `ansible_xxx` という変数名で自動的にアクセス可能となります。
 
 出力される情報量が多いため、1台のノードのみに実行します。
 
-`ansible node-1 -m setup`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible node1 -m ansible.builtin.setup`
 
 このように Ansible は様々なモジュールを持ち、これらを使ってノードに対して操作を行ったり、情報収集を行うことが可能です。
 
