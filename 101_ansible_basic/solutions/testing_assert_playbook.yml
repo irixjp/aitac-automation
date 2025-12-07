@@ -1,33 +1,33 @@
 ---
 - name: Test with assert
-  hosts: node-1
+  hosts: node1
   become: yes
   gather_facts: no
   tasks:
     - ignore_errors: yes
       block:
         - name: Is httpd package installed?
-          shell: yum list installed | grep -e '^httpd\.'
+          ansible.builtin.shell: yum list installed | grep -e '^httpd\.'
           register: ret_httpd_pkg
 
         - name: check httpd processes is running
-          shell: ps -ef |grep http[d]
+          ansible.builtin.shell: ps -ef |grep http[d]
           register: ret_httpd_proc
 
         - name: Is httpd service enabled?
-          shell: systemctl is-enabled httpd
+          ansible.builtin.shell: systemctl is-enabled httpd
           register: ret_httpd_enabled
 
     - block:
         - name: Assert results
-          assert:
+          ansible.builtin.assert:
             that:
               - ret_httpd_pkg.rc == 0
               - ret_httpd_proc.rc == 0
               - ret_httpd_enabled.rc == 0
       always:
         - name: build report
-          copy:
+          ansible.builtin.copy:
             content: |
               # Test Reports
               ---

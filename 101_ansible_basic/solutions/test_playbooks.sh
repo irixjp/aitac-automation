@@ -34,7 +34,10 @@ ansible-playbook role_playbook.yml
 ansible-galaxy role install -r roles/requirements.yml
 ansible-playbook galaxy_playbook.yml
 
-#ansible-playbook collection_playbook.yml
+# step11
+ansible-galaxy collection install oracle.oci
+ansible-galaxy collection install -r collections/requirements.yml
+ansible-playbook collection_playbook.yml
 
 #ansible-playbook lb_web.yml
 

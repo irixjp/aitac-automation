@@ -4,7 +4,7 @@
   gather_facts: true
   tasks:
   - name: build report
-    copy:
+    ansible.builtin.copy:
       content: |
         # Server Configuration Reports: {{ inventory_hostname }}
         ---
@@ -17,7 +17,7 @@
     delegate_to: localhost
   
   - name: concatenate reports
-    assemble:
+    ansible.builtin.assemble:
       src: /tmp
       regexp: 'setting\_report\_*'
       dest: setting_report.md
