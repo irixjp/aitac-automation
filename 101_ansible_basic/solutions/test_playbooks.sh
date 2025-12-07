@@ -42,3 +42,6 @@ ansible-playbook collection_playbook.yml
 # step12
 ansible-playbook reporting_playbook.yml
 ansible-playbook testing_assert_playbook.yml
+
+# step50
+ansible-playbook lb_web.yml
