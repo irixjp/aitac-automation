@@ -1,15 +1,15 @@
 # テンプレートとフィルター
----
-Ansible はテンプレート機能を備えており、動的なファイル作成が可能です。テンプレートエンジンとしては [`jinja2`](https://palletsprojects.com/p/jinja/) を利用しています。
+
+Ansible はテンプレート機能を備えており、動的なファイル作成が可能です。テンプレートエンジンとしては [`jinja2`](https://palletsprojects.com/projects/jinja/) を利用しています。
 
 テンプレートはとても汎用性の高い機能で、様々な状況で活用できます。アプリ用のコンフィグファイルを動的に生成して配布したり、各ノードから収集した情報を元にレポートを作成することが可能です。
 
 ## Jinja2 
----
+
 テンプレートを利用するには2つの要素が必要になります。
 
 - テンプレートファイル: jinja2 形式の表現が埋め込まれたファイルで、一般的に j2 拡張子を付加します。
-- [`template`](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html) モジュール: コピーモジュールに似ています。src にテンプレートファイルを指定し、dest に配置先を指定すると、テンプレートファイルをコピーする際に、jinja2 部分を処理してからファイルをコピーします。
+- [`ansible.builtin.template`](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/template_module.html) モジュール: コピーモジュールに似ています。src にテンプレートファイルを指定し、dest に配置先を指定すると、テンプレートファイルをコピーする際に、jinja2 部分を処理してからファイルをコピーします。
 
 実際にテンプレートを作成します。
 
@@ -41,18 +41,18 @@ Ansible はテンプレート機能を備えており、動的なファイル作
   become: yes
   tasks:
     - name: install httpd
-      yum:
+      ansible.builtin.dnf:
         name: httpd
         state: latest
 
     - name: start & enabled httpd
-      service:
+      ansible.builtin.service:
         name: httpd
         state: started
         enabled: yes
 
     - name: Put index.html from template
-      template:
+      ansible.builtin.template:
         src: templates/index.html.j2
         dest: /var/www/html/index.html
 ```
@@ -61,40 +61,43 @@ Ansible はテンプレート機能を備えており、動的なファイル作
 
 ではこの playbook を動かしてみます。
 
-`cd ~/working`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`cd ~/working`
 
-`ansible-playbook template_playbook.yml -e 'LANG=JP'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook template_playbook.yml -e 'LANG=JP'`
 
 ```text
 (省略)
 TASK [Put index.html from template] **********************
-changed: [node-2]
-changed: [node-3]
-changed: [node-1]
+changed: [node2]
+changed: [node3]
+changed: [node1]
 (省略)
 ```
 
 どのような結果になったかを確認してみましょう。以下のコマンドを実行してください。
 
-`ansible web -m uri -a 'url=http://localhost/ return_content=yes'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible web -m ansible.builtin.uri -a 'url=http://localhost/ return_content=yes'`
 
-このコマンドは [`uri`](https://docs.ansible.com/ansible/latest/modules/uri_module.html) モジュールという HTTPリクエストを発行するモジュールを利用しています。このモジュールを使って、それぞれのノード上から `http://localhost/` へアクセスしてコンテンツを取得しています。
+このコマンドは [`ansible.builtin.uri`](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/uri_module.html) モジュールという HTTPリクエストを発行するモジュールを利用しています。このモジュールを使って、それぞれのノード上から `http://localhost/` へアクセスしてコンテンツを取得しています。
 
 ```text
-node-1 | SUCCESS => {
+node1 | SUCCESS => {
     (省略)
     "content": "<html><body>\n<h1>This server is running on node-1.</h1>\n\n<p>\n     Konnichiwa!\n</p>\n</body></html>\n",
     (省略)
     "url": "http://localhost/"
 }
-node-2 | SUCCESS => {
+node2 | SUCCESS => {
     (省略)
     "content": "<html><body>\n<h1>This server is running on node-2.</h1>\n\n<p>\n     Konnichiwa!\n</p>\n</body></html>\n",
     (省略)
     "status": 200,
     "url": "http://localhost/"
 }
-node-3 | SUCCESS => {
+node3 | SUCCESS => {
     (省略)
     "content": "<html><body>\n<h1>This server is running on node-3.</h1>\n\n<p>\n     Konnichiwa!\n</p>\n</body></html>\n",
     (省略)
@@ -107,27 +110,28 @@ node-3 | SUCCESS => {
 
 では、条件を変えて `LANG == "JP"` が成立しない場合にはどうなるか確認してください。
 
-`ansible-playbook template_playbook.yml -e 'LANG=EN'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook template_playbook.yml -e 'LANG=EN'`
 
-`ansible web -m uri -a 'url=http://localhost/ return_content=yes'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible web -m ansible.builtin.uri -a 'url=http://localhost/ return_content=yes'`
 
 今度の実行では、「Hello!」と挿入されたことが確認できるはずです。
-以下のリンクをクリックし、node-1,2,3 に対してブラウザでアクセスしてサイトの動作を確認してください。
+以下の手順でブラウザから確認することも可能です。
 
-- [node-1]({{TRAFFIC_HOST1_8081}})
-- [node-2]({{TRAFFIC_HOST1_8082}})
-- [node-3]({{TRAFFIC_HOST1_8083}})
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`curl 169.254.169.254/latest/meta-data/public-ipv4`
 
-> Note: 上記リンクの「node-1,2,3」をクリックしてください。これらは、各ノードのポート80にリダイレクトされます。
-
-> Note: Jupyter 上で演習をしている場合は、アクセスするIPアドレスを `~/inventory_file` で確認し、`http_access=http://35.73.128.87:8081` に示されたアドレスへブラウザでアクセスしてください。このアドレスは各ノードのポート80へリダイレクトされます。
+- node1: http://<自分の code-server IPアドレス>:8081
+- node2: http://<自分の code-server IPアドレス>:8082
+- node3: http://<自分の code-server IPアドレス>:8083
 
 このようにテンプレートを使うことで、動的にファイルの生成を行うことが可能になります。この機能はとても応用範囲が広く、設定ファイルの自動生成や設定報告書の自動作成など様々な場面で活用できます。
 
 
 ## Filter
----
-Jinja2 の機能の一つで [`filter`](https://docs.ansible.com/ansible/latest/user_guide/playbooks_filters.html) があります。これは `{{ }}` で変数を展開する際に利用でき、変数の値を簡易的に加工することができます。この機能は playbook 内でも利用可能です。
+
+Jinja2 の機能の一つで [`filter`](https://docs.ansible.com/projects/ansible/latest/playbook_guide/playbooks_filters.html) があります。これは `{{ }}` で変数を展開する際に利用でき、変数の値を簡易的に加工することができます。この機能は playbook 内でも利用可能です。
 
 フィルターを利用するには `{{ var_name | filter_name }}` という形式で利用します。いつくか例をみてみましょう。
 
@@ -136,10 +140,11 @@ Jinja2 の機能の一つで [`filter`](https://docs.ansible.com/ansible/latest/
 
 変数に値が入っていない場合に、初期値を設定してくれるフィルターです。
 
-`ansible node-1 -m debug -a 'msg={{ hoge | default("abc") }}'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible node1 -m ansible.builtin.debug -a 'msg={{ hoge | default("abc") }}'`
 
 ```text
-node-1 | SUCCESS => {
+node1 | SUCCESS => {
     "msg": "abc"
 }
 ```
@@ -148,10 +153,11 @@ node-1 | SUCCESS => {
 
 文字列を大文字・小文字に変換するフィルターです。
 
-`ansible node-1 -e 'str=abc' -m debug -a 'msg="{{ str | upper }}"'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible node1 -e 'str=abc' -m ansible.builtin.debug -a 'msg="{{ str | upper }}"'`
 
 ```text
-node-1 | SUCCESS => {
+node1 | SUCCESS => {
     "msg": "ABC"
 }
 ```
@@ -160,18 +166,20 @@ node-1 | SUCCESS => {
 
 リストから最小・最大値を取り出すフィルターです。
 
-`ansible node-1 -m debug -a 'msg="{{ [5, 1, 10] | min }}"'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible node1 -m ansible.builtin.debug -a 'msg="{{ [5, 1, 10] | min }}"'`
 
 ```text
-node-1 | SUCCESS => {
+node1 | SUCCESS => {
     "msg": "1"
 }
 ```
 
-`ansible node-1 -m debug -a 'msg="{{ [5, 1, 10] | max }}"'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible node1 -m ansible.builtin.debug -a 'msg="{{ [5, 1, 10] | max }}"'`
 
 ```text
-node-1 | SUCCESS => {
+node1 | SUCCESS => {
     "msg": "10"
 }
 ```
@@ -179,6 +187,6 @@ node-1 | SUCCESS => {
 他にも多数のフィルターが実装されていますので、状況に応じて使い分けることでより簡単に playbook が作成できるようになります。
 
 ## 演習の解答
----
-- [template\_html\_playbook.yml](https://github.com/irixjp/katacoda-scenarios/blob/master/materials/solutions/block_playbook.yml)
-- [files/index.html.j2](https://github.com/irixjp/katacoda-scenarios/blob/master/materials/solutions/templates/index.html.j2)
+
+- [template\_html\_playbook.yml](https://github.com/irixjp/aitac-automation/blob/main/101_ansible_basic/solutions/template_playbook.yml)
+- [files/index.html.j2](https://github.com/irixjp/aitac-automation/blob/main/101_ansible_basic/solutions/templates/index.html.j2)

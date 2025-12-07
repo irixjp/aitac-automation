@@ -4,17 +4,18 @@
   become: yes
   tasks:
     - name: install httpd
-      yum:
+      ansible.builtin.dnf:
         name: httpd
         state: latest
 
     - name: start & enabled httpd
-      service:
+      ansible.builtin.service:
         name: httpd
         state: started
         enabled: yes
 
     - name: Put index.html from template
-      template:
+      ansible.builtin.template:
         src: templates/index.html.j2
         dest: /var/www/html/index.html
+
