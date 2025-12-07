@@ -13,13 +13,13 @@
         {% for key, value in ansible_default_ipv4.items() %}
         | {{ key }} | {{ value }} |
         {% endfor %}
-      dest: /tmp/setting_report_{{ inventory_hostname }}.md
+      dest: setting_report_{{ inventory_hostname }}.md
     delegate_to: localhost
   
   - name: concatenate reports
     ansible.builtin.assemble:
-      src: /tmp
-      regexp: 'setting\_report\_*'
+      src: .
+      regexp: 'setting\_report\_node*'
       dest: setting_report.md
       delimiter: "\n"
     run_once: true

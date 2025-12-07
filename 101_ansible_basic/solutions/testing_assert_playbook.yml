@@ -34,7 +34,7 @@
               | test | result |
               | ---- | ------ |
               {% for i in results %}
-              | {{ i.cmd | regex_replace(query, '&#124;') }} | {{ i.rc }} |
+              | {{ i.cmd | regex_replace(my_query, '&#124;') }} | {{ i.rc }} |
               {% endfor %}
             dest: result_report_{{ inventory_hostname }}.md
           vars:
@@ -42,5 +42,5 @@
               - "{{ ret_httpd_pkg }}"
               - "{{ ret_httpd_proc }}"
               - "{{ ret_httpd_enabled }}"
-            query: "\\|"
+            my_query: "\\|"
           delegate_to: localhost

@@ -192,7 +192,7 @@ Playbookを実行します。
               | test | result |
               | ---- | ------ |
               {% for i in results %}
-              | {{ i.cmd | regex_replace(query, '&#124;') }} | {{ i.rc }} |
+              | {{ i.cmd | regex_replace(my_query, '&#124;') }} | {{ i.rc }} |
               {% endfor %}
             dest: result_report_{{ inventory_hostname }}.md
           vars:
@@ -200,7 +200,7 @@ Playbookを実行します。
               - "{{ ret_httpd_pkg }}"
               - "{{ ret_httpd_proc }}"
               - "{{ ret_httpd_enabled }}"
-            query: "\\|"
+            my_query: "\\|"
           delegate_to: localhost
 ```
 
@@ -252,13 +252,13 @@ Playbookを実行します。
         {% for key, value in ansible_default_ipv4.items() %}
         | {{ key }} | {{ value }} |
         {% endfor %}
-      dest: /tmp/setting_report_{{ inventory_hostname }}.md
+      dest: setting_report_{{ inventory_hostname }}.md
     delegate_to: localhost
   
   - name: concatenate reports
     ansible.builtin.assemble:
-      src: /tmp
-      regexp: 'setting\_report\_*'
+      src: .
+      regexp: 'setting\_report\_node*'
       dest: setting_report.md
       delimiter: "\n"
     run_once: true

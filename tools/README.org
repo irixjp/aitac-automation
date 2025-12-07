@@ -9,6 +9,8 @@
   ansible-playbook -i xxyy_podman_inventory podman_install.yml
 
   ansible-playbook -i xxyy_podman_inventory podman_container_deploy.yml
+
+  ansible-playbook -i xxyy_podman_inventory distributing_contents.yml
 #+end_src
 
 環境削除
