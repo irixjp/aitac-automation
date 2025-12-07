@@ -1,5 +1,5 @@
 ---
-- hosts: node-1
+- hosts: node1
   gather_facts: false
   tasks:
     - name: get process list

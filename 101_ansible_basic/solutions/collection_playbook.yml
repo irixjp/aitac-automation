@@ -1,6 +1,6 @@
 ---
 - name: using collection
-  hosts: node-1
+  hosts: node1
   tasks:
     - import_role:
         name: irixjp.sample_collection_hello.hello

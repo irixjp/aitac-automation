@@ -1,5 +1,5 @@
 # コーディング規約
----
+
 Ansible はコーディングの自由度が高く、様々な書き方で playbook を作成することができます。しかし、この自由度が課題を生み出す場合もあります。それはチームで自動化を進める時です。個人個人が好きなように playbook を作成してしまうと、ある人はタスクに `name` をつけるが、別の人はつけないといった個人の癖も一緒に実装されてしまいます。このように個人ごとに実装内容にバラツキが生じてしまうと、品質を担保するためのコストが増加していきます。
 
 そのためにチームに必要となるのがコーディング規約です。規約を設けることで、チームで共通した記述が可能となりスキルの平準化やレビューコストの低下に繋がります。しかし一方で、規約に準拠しているのか、というチェックも新たに必要となってしまいます。
@@ -7,7 +7,7 @@ Ansible はコーディングの自由度が高く、様々な書き方で playb
 そこで Ansible では規約準拠を自動的に確かめる方法を提供していますので、その使い方について学習してしていきます。
 
 ## Ansible Lint
----
+
 Ansible では [ansible-lint](https://github.com/ansible/ansible-lint) というプログラムを提供しています。これは plyabook の静的解析を行い、ルール違反の記述が無いかをチェックできます。チェックするルールはデフォルトでよく使われるものが適用され、自分でルールを定義することもできます。
 
 サンプルとして以下の2つの playbook を準備しています。
@@ -17,20 +17,25 @@ Ansible では [ansible-lint](https://github.com/ansible/ansible-lint) という
 
 この2つの playbook はどちらも正しく実行でき、`ps -ef` の結果を出力してくれます。試しに2つを実行してください。
 
-`cd ~/working`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`cd ~/working`
 
-`ansible-playbook lint_ok_playbook.yml`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook lint_ok_playbook.yml`
 
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
 `ansible-playbook lint_ng_playbook.yml`{{execute}}
 
 どちらも正常に実行できたはずです。では、この2つの playbook に `ansible-lint` を適用してみます。
 
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
 `ansible-lint lint_ok_playbook.yml`{{execute}}
 
 こちらは正常終了します。
 
 > Note: Warning が出る場合がありますが無視してください。
 
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
 `ansible-lint lint_ng_playbook.yml`{{execute}}
 
 エラー例1
