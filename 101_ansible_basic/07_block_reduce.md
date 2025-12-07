@@ -7,6 +7,8 @@ playbook で一連のタスクをグループ化し、まとめて `when` や `i
 `block` 句を用いた playbook は以下のように記述できます。
 
 `~/working/block_playbook.yml` を編集してください。
+
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: using block statement
@@ -86,6 +88,7 @@ ok: [node1]
 
 `~/working/rescue_playbook.yml` を以下のように作成してください。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: using block, rescue, always statement

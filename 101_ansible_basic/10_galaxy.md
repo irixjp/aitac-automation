@@ -33,6 +33,7 @@ Galaxy には既に膨大な数のロールが登録されており、大抵の�
 
 `~/working/roles/requirements.yml` を以下のように編集してください。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - src: irixjp.role_example_hello
@@ -42,6 +43,8 @@ Galaxy には既に膨大な数のロールが登録されており、大抵の�
 `requirements.yml` の書式は [こちら](https://docs.ansible.com/projects/ansible/latest/galaxy/user_guide.html#installing-roles-and-collections-from-the-same-requirements-yml-file) で詳細が解説されています。ここでは Galaxy 上でのカタログ名(`irixjp.role_example_hello`)を指定していますが、github や自社 git サーバーを直接参照させることも可能です。
 
 次にこのロールを利用する `~/working/galaxy_playbook.yml` を作成します。
+
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: using galaxy
@@ -122,6 +125,8 @@ Role に含まれるカスタムモジュールやカスタムフィルターは
 例としてロール `irixjp.role_example_hello` はカスタムモジュール `sample_get_locale` を含んでいます。
 
 このカスタムモジュールは以下のように使用できます。 `~/working/galaxy_playbook.yml` を編集します。
+
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: using galaxy

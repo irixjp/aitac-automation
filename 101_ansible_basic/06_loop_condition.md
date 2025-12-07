@@ -34,6 +34,7 @@ playbook は YAML 形式で表記するため、基本的には作業やパラ�
 
 `~/working/loop_playbook.yml` を以下のように編集してください。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: add users by loop
@@ -125,6 +126,8 @@ changed: [node1] => (item=peach)
 Ansible の条件式は特定の条件下でタスクを実行「する・しない」を制御するために用いられます。条件の記述には `when` 句を使います。典型的な利用方法として、あるタスクの実行結果を元に、次のタスクを実行する・しないという制御を行うケースです。
 
 実際に以下の`~/working/when_playbook.yml` を書いてみましょう
+
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: start httpd if it's stopped
@@ -293,6 +296,7 @@ total 16
 
 `~/working/handler_playbook.yml` を以下のように編集します。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: restart httpd if httpd.conf is changed
@@ -343,6 +347,7 @@ node-1  : ok=2 changed=0 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
 
 では、`~/working/files/httpd.conf` を編集して、コピーが `changed` となるようにします。以下のようにファイルを編集してください。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```text
 ServerAdmin root@localhost
       ↓

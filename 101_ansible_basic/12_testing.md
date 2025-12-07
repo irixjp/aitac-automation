@@ -95,6 +95,7 @@ Ansible でのテストでよく使われる記述パターンは、`ansible.bui
 
 ファイル `~/working/testing_assert_playbook.yml` を以下のように編集します。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: Test with assert
@@ -155,6 +156,7 @@ Playbookを実行します。
 
 先程のファイル `~/working/testing_assert_playbook.yml` を以下のように編集します。`always` 以下が追加された部分になります。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: Test with assert
@@ -236,6 +238,7 @@ Playbookを実行します。
 
 ファイル `~/working/reporting_playbook.yml` を以下のように作成します。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: Report with Ansible

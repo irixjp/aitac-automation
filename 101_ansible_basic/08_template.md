@@ -15,6 +15,7 @@ Ansible はテンプレート機能を備えており、動的なファイル作
 
 `~/working/templates/index.html.j2` ファイルを作成し、中身を以下となるように編集してください。このファイルが `jinja2` テンプレートファイルになります。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```jinja2
 <html><body>
 <h1>This server is running on {{ inventory_hostname }}.</h1>
@@ -34,6 +35,7 @@ Ansible はテンプレート機能を備えており、動的なファイル作
 
 詳細な解説を行う前に、まず `~/working/template_playbook.yml` を作成して、実際にテンプレートを動かしてみましょう。以下のように `template_playbook.yml` を編集してください。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: using template

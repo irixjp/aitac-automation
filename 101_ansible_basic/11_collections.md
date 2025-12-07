@@ -133,6 +133,7 @@ drwxr-xr-x. 2 student student 24 Dec  7 06:14 oracle.oci-5.5.0.info/
 
 `~/working/collections/requirements.yml` を以下のように編集します。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 collections:
@@ -166,6 +167,7 @@ irixjp.sample_collection_hello 1.0.0
 
 `~/working/collection_playbook.yml` を以下のように編集します。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: using collection

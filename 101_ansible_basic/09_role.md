@@ -88,6 +88,7 @@ roles
 
 `~/working/roles/web_setup/tasks/main.yml` を編集
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: install httpd
@@ -122,6 +123,7 @@ roles
 
 `~/working/roles/web_setup/handlers/main.yml` を編集。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: restart_apache
@@ -136,6 +138,7 @@ roles
 
 `~/working/roles/web_setup/defaults/main.yml` の編集
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 LANG: JP
@@ -149,6 +152,7 @@ LANG: JP
 
 `~/working/roles/web_setup/templates/index.html.j2` の編集
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```jinja2
 <html><body>
 <h1>This server is running on {{ inventory_hostname }}.</h1>
@@ -187,6 +191,7 @@ LANG: JP
 
 ファイルの中身を編集します。演習の進み方によっては既に編集済みの場合もありますのでその場合はそのままにしてください。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```
 ServerAdmin root@localhost
       ↓
@@ -202,6 +207,7 @@ ServerAdmin centos_role@localhost
 
 実際にロールを呼び出す playbook を作成します。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: using role
