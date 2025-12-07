@@ -1,0 +1,24 @@
+---
+- hosts: all
+  tasks:
+    - name: Ensure class_id variable is set
+      fail:
+        msg: "The variable 'class_id' must be defined."
+      when: class_id is not defined
+
+    - name: copy working contents to VMs
+      ansible.builtin.copy:
+        src: "../101_ansible_basic/{{ item }}/"
+        dest: "{{ item }}"
+      loop:
+        - working
+        - solutions
+
+    - name: Put contents to 
+      containers.podman.podman_container_copy:
+        src: "{{ item }}/"
+        dest: /student/
+        container: code-server
+      loop:
+        - working
+        - solutions
