@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: web
   gather_facts: no
   tasks:
     - name: print group_vars

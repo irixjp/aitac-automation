@@ -3,5 +3,5 @@
   hosts: web
   become: yes
   tasks:
-    - import_role:
+    - ansible.builtin.import_role:
         name: web_setup

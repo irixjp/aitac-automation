@@ -20,7 +20,10 @@ ansible-playbook block_playbook.yml
 ansible-playbook rescue_playbook.yml
 
 # step8
-ansible-playbook ansible-playbook template_playbook.yml
+ansible-playbook template_playbook.yml
+
+# step9
+ansible-playbook role_playbook.yml
 
 #ansible-playbook collection_playbook.yml
 
@@ -30,6 +33,6 @@ ansible-playbook ansible-playbook template_playbook.yml
 
 #ansible-playbook reporting_playbook.yml
 
-#ansible-playbook role_playbook.yml
+
 
 #ansible-playbook testing_assert_playbook.yml
