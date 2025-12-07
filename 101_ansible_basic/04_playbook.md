@@ -85,6 +85,7 @@ YAMLはデータ構造を表現するためのフォーマットであるため�
 
 以下のようにファイルに追記してください。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: deploy httpd server
@@ -103,6 +104,7 @@ YAMLはデータ構造を表現するためのフォーマットであるため�
 
 次に以下の状態となるように先のファイルへ追記します。インデントの階層に注意してください。
 
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: deploy httpd server
