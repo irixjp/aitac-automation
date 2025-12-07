@@ -222,6 +222,8 @@ apache の初期画面が表示されれば成功です。アクセス出来な�
 ```
 
 さらに `first_playbook.yml` を以下のように編集します。
+
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
 ```yaml
 ---
 - name: deploy httpd server
