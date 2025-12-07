@@ -1,11 +1,11 @@
 ---
 - name: using galaxy
-  hosts: node-1
+  hosts: node1
   tasks:
-    - import_role:
+    - ansible.builtin.import_role:
         name: irixjp.role_example_hello
 
-    - import_role:
+    - ansible.builtin.import_role:
         name: irixjp.role_example_uptime
 
     - name: get locale

@@ -9,7 +9,7 @@
         dest: /etc/httpd/conf/
       notify:
         - restart_apache
-  ansible.builtin.handlers:
+  handlers:
     - name: restart_apache
       service:
         name: httpd

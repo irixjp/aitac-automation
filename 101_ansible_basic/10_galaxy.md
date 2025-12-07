@@ -1,13 +1,13 @@
 # Role の管理と再利用
----
+
 ここでは作成したロールの管理と再利用方法についてみていきます。ロールによって playbook の部品化が可能となりますが、その部品を再利用する時に、毎回 `roles` ディレクトリにロール一式をコピーする方法は好ましく有りません。コピーした後に元ロールが変更された場合に、その変更に追随できないためです。またこのようなソースコードの分散を管理しようとしたときの手間も膨大となります。
 
-この問題を解決するために、Ansible では playbook 実行に必要となるロール一式をまとめて取得する方法があります。それが [ansible-galaxy](https://docs.ansible.com/ansible/latest/galaxy/user_guide.html) コマンドです。
+この問題を解決するために、Ansible では playbook 実行に必要となるロール一式をまとめて取得する方法があります。それが [ansible-galaxy](https://docs.ansible.com/projects/ansible/latest/galaxy/user_guide.html) コマンドです。
 
 Galaxy の利用とあわせて、Role 管理の手法について解説していきます。
 
 ## Role の管理方法
----
+
 Ansible ではロールの管理に `git` 等のソースコード管理システムの利用を強く推奨しています。
 
 > Note: 推奨という表現をしていますが、実質的にほぼ必須です。もちろん手動で Role や playbook のファイルを管理することも可能です。しかし、あくまで可能というだけで、どのような事情があれ「手動管理はすべきでありません」と強く明記しておきます。
@@ -19,7 +19,7 @@ Galaxy には既に膨大な数のロールが登録されており、大抵の�
 > Note: そのまま使えるケースもあれば、改造が必要なケースもあります。しかし、毎回ゼロか調べながらロールを作成するという手間を大幅に削減できます。
 
 ## `ansible-galaxy` コマンドの利用
----
+
 演習用のロールをインポートして活用してみます。既に作成され、git 上でアクセス可能になっているロールを再利用するためには `ansible-galaxy` コマンドを利用します。
 
 今回利用するロールは以下です。
@@ -27,7 +27,7 @@ Galaxy には既に膨大な数のロールが登録されており、大抵の�
 - [irixjp.role\_example\_hello](https://galaxy.ansible.com/irixjp/role_example_hello) あいさつを表示するだけのロール
 - [irixjp.role\_example\_uptime](https://galaxy.ansible.com/irixjp/role_example_uptime) uptimeの結果を表示するだけのロール
 
-> Note: `Galaxy` 用のロールを作成するには通常のロールに [`meta`](https://galaxy.ansible.com/docs/contributing/creating_role.html) データを付加し、Galaxy に登録するだけです。
+> Note: `Galaxy` 用のロールを作成するには通常のロールに [`meta`](https://docs.ansible.com/projects/ansible/latest/galaxy/dev_guide.html) データを付加し、Galaxy に登録するだけです。
 
 これらのロールをまとめて取得するには `requirements.yml` ファイルを準備します。
 
@@ -39,39 +39,42 @@ Galaxy には既に膨大な数のロールが登録されており、大抵の�
 - src: irixjp.role_example_uptime
 ```
 
-`requirements.yml` の書式は [こちら](https://galaxy.ansible.com/docs/using/installing.html) で詳細が解説されています。ここでは Galaxy 上でのカタログ名(`irixjp.role_example_hello`)を指定していますが、github や自社 git サーバーを直接参照させることも可能です。
+`requirements.yml` の書式は [こちら](https://docs.ansible.com/projects/ansible/latest/galaxy/user_guide.html#installing-roles-and-collections-from-the-same-requirements-yml-file) で詳細が解説されています。ここでは Galaxy 上でのカタログ名(`irixjp.role_example_hello`)を指定していますが、github や自社 git サーバーを直接参照させることも可能です。
 
 次にこのロールを利用する `~/working/galaxy_playbook.yml` を作成します。
 ```yaml
 ---
 - name: using galaxy
-  hosts: node-1
+  hosts: node1
   tasks:
-    - import_role:
+    - ansible.builtin.import_role:
         name: irixjp.role_example_hello
 
-    - import_role:
+    - ansible.builtin.import_role:
         name: irixjp.role_example_uptime
 ```
 
 これで準備が整いました。
 
 ## Role のダウンロードと playbook の実行
----
+
 Galaxy からロールを習得します。
 
-`cd ~/working`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`cd ~/working`
 
-`ansible-galaxy role install -r roles/requirements.yml`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-galaxy role install -r roles/requirements.yml`
 
 ```text
+Starting galaxy role install process
 - downloading role 'role_example_hello', owned by irixjp
 - downloading role from https://github.com/irixjp/ansible-role-sample-hello/archive/master.tar.gz
-- extracting irixjp.role_example_hello to /jupyter/.ansible/roles/irixjp.role_example_hello
+- extracting irixjp.role_example_hello to /student/.ansible/roles/irixjp.role_example_hello
 - irixjp.role_example_hello (master) was installed successfully
 - downloading role 'role_example_uptime', owned by irixjp
 - downloading role from https://github.com/irixjp/ansible-role-sample-uptime/archive/master.tar.gz
-- extracting irixjp.role_example_uptime to /jupyter/.ansible/roles/irixjp.role_example_uptime
+- extracting irixjp.role_example_uptime to /student/.ansible/roles/irixjp.role_example_uptime
 - irixjp.role_example_uptime (master) was installed successfully
 ```
 
@@ -81,17 +84,19 @@ Galaxy からロールを習得します。
 
 ダウンロードされたロールを確認するは以下のコマンドを実行します。
 
-`ansible-galaxy role list`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-galaxy role list`
 
 ```text
-# /root/.ansible/roles
-- irixjp.role_example_uptime, master
+# /student/.ansible/roles
 - irixjp.role_example_hello, master
+- irixjp.role_example_uptime, master
 ```
 
 実際に playbook を実行します。
 
-`ansible-playbook galaxy_playbook.yml`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook galaxy_playbook.yml`
 
 ```text
 TASK [irixjp.role_example_hello : say hello!] ********
@@ -111,7 +116,7 @@ ok: [node-1] => {
 このようにロールを Galaxy や git 上で管理し、Playbookが必要とするロールを `requirements.yml` で管理することで、ソースコードの分散を抑え、効率と安全性を高めることが可能になります。
 
 ## Role 内のカスタムモジュールやカスタムフィルターの利用
----
+
 Role に含まれるカスタムモジュールやカスタムフィルターは、そのロールが playbook に読み込まれると、ロール外のタスクでも使用可能になります。
 
 例としてロール `irixjp.role_example_hello` はカスタムモジュール `sample_get_locale` を含んでいます。
@@ -120,12 +125,12 @@ Role に含まれるカスタムモジュールやカスタムフィルターは
 ```yaml
 ---
 - name: using galaxy
-  hosts: node-1
+  hosts: node1
   tasks:
-    - import_role:
+    - ansible.builtin.import_role:
         name: irixjp.role_example_hello
 
-    - import_role:
+    - ansible.builtin.import_role:
         name: irixjp.role_example_uptime
 
     - name: get locale
@@ -137,15 +142,16 @@ Role に含まれるカスタムモジュールやカスタムフィルターは
 
 実行します。
 
-`ansible-playbook galaxy_playbook.yml`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook galaxy_playbook.yml`
 
 ```text
 (省略)
 TASK [get locale] *********************
-ok: [node-1]
+ok: [node1]
 
 TASK [debug] **************************
-ok: [node-1] => {
+ok: [node1] => {
     "ret": {
         "changed": false,
         "failed": false,
@@ -160,16 +166,16 @@ ok: [node-1] => {
 
 
 ## Galaxy 用ロールの作成方法
----
-Galaxy を利用して再配布可能なロールを作成するためにはリポジトリに `galaxy.yml` を含める必要があります。作成方法は [Creating Roles](https://galaxy.ansible.com/docs/contributing/creating_role.html) を参照してください。
+
+Galaxy を利用して再配布可能なロールを作成するためにはリポジトリに `galaxy.yml` を含める必要があります。作成方法は [Creating Roles](https://docs.ansible.com/projects/ansible/latest/galaxy/dev_guide.html#creating-roles-for-galaxy) を参照してください。
 
 
 ## 補足の情報
----
-コマンドラインでは `ansible-galaxy role install` をつど実行する必要がありますが、Ansible Automation Platform や /AWX では playbook の実行前に自動的に `requirements.yml` からロールをダウンロードする機能がありますので、更新し忘れといった事故をシステム的に防止することが可能です。
+
+コマンドラインでは `ansible-galaxy role install` をつど実行する必要がありますが、Ansible Automation Platform や AWX では playbook の実行前に自動的に `requirements.yml` からロールをダウンロードする機能がありますので、更新し忘れといった事故をシステム的に防止することが可能です。
 
 
 ## 演習の解答
----
-- [galaxy\_playbook.yml](https://github.com/irixjp/katacoda-scenarios/blob/master/materials/solutions/galaxy_playbook.yml)
-- [requirements.yml](https://github.com/irixjp/katacoda-scenarios/blob/master/materials/solutions/roles/requirements.yml)
+
+- [galaxy\_playbook.yml](https://github.com/irixjp/aitac-automation/blob/main/101_ansible_basic/solutions/galaxy_playbook.yml)
+- [requirements.yml](https://github.com/irixjp/aitac-automation/blob/main/101_ansible_basic/solutions/roles/requirements.yml)
