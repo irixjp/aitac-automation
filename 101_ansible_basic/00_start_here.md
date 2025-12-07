@@ -32,17 +32,11 @@
 
 本演習環境の素材は以下で管理されています。
 
-- [演習テキスト](https://github.com/irixjp/katacoda-scenarios/tree/master/materials)
-- [演習コンテナ](https://hub.docker.com/r/irixjp/aitac-automation-jupyter), [Dockerfile](https://github.com/irixjp/katacoda-scenarios/tree/master/container/jupyter)
+- https://github.com/irixjp/aitac-automation
 
 
 本演習環境で利用しているソフトウェアは以下になります。
 
-- [Ansible](https://github.com/ansible/ansible)
-- [Jupyter Lab](https://github.com/jupyterlab/jupyterlab)
+- [ansible](https://github.com/ansible/ansible)
+- [code-server](https://github.com/coder/code-server)
 
-
-その他の参考文献&学習ソース
-
-- [katacoda](https://www.katacoda.com/irixjp)
-- [ansible official workshop](https://github.com/ansible/workshops)

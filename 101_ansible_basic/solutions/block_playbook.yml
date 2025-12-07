@@ -1,23 +1,23 @@
 ---
 - name: using block statement
-  hosts: node-1
+  hosts: node1
   become: yes
   tasks:
     - name: Install, configure, and start Apache
       block:
         - name: install httpd
-          yum:
+          ansible.builtin.dnf:
             name: httpd
             state: latest
 
         - name: start & enabled httpd
-          service:
+          ansible.builtin.service:
             name: httpd
             state: started
             enabled: yes
 
         - name: copy index.html
-          copy:
+          ansible.builtin.copy:
             src: files/index.html
             dest: /var/www/html/
       when:

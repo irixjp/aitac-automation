@@ -1,33 +1,33 @@
 # エラーハンドリング
----
+
 playbook で一連のタスクをグループ化し、まとめて `when` や `ingore_errors` を適用することができます。ここで登場するのが `block` 句です。また `block` 句にはエラーハンドリングの機能もあり、`block` 内でのエラー に対して `rescue` 句のタスクを実行したり、エラーに関係なく実行する `always` 句が使えます。
 
 ## block
----
+
 `block` 句を用いた playbook は以下のように記述できます。
 
 `~/working/block_playbook.yml` を編集してください。
 ```yaml
 ---
 - name: using block statement
-  hosts: node-1
+  hosts: node1
   become: yes
   tasks:
     - name: Install, configure, and start Apache
       block:
         - name: install httpd
-          yum:
+          ansible.builtin.dnf:
             name: httpd
             state: latest
 
         - name: start & enabled httpd
-          service:
+          ansible.builtin.service:
             name: httpd
             state: started
             enabled: yes
 
         - name: copy index.html
-          copy:
+          ansible.builtin.copy:
             src: files/index.html
             dest: /var/www/html/
       when:
@@ -38,47 +38,50 @@ playbook で一連のタスクをグループ化し、まとめて `when` や `i
 
 `block_playbook.yml` を `-e 'exec_block=no'` と `yes` の場合で実行結果にどのような違いがあるか見てみましょう。
 
-`cd ~/working`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`cd ~/working`
 
 まず、条件が成立しないケースです。
 
-`ansible-playbook block_playbook.yml -e 'exec_block=no'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook block_playbook.yml -e 'exec_block=no'`
 
 ```text
 TASK [install httpd] *********************************
-skipping: [node-1]
+skipping: [node1]
 
 TASK [start & enabled httpd] *************************
-skipping: [node-1]
+skipping: [node1]
 
 TASK [copy index.html] *******************************
-skipping: [node-1]
+skipping: [node1]
 ```
 
 3つのタスクがまとめてスキップされていることがわかります。次に条件が成立するケースです。
 
-`ansible-playbook block_playbook.yml -e 'exec_block=yes'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook block_playbook.yml -e 'exec_block=yes'`
 
 ```text
 TASK [install httpd] *********************************
-ok: [node-1]
+ok: [node1]
 
 TASK [start & enabled httpd] *************************
-changed: [node-1]
+ok: [node1]
 
 TASK [copy index.html] *******************************
-changed: [node-1]
+ok: [node1]
 ```
 
 `block` でグループ化された3つのタスクが実行されていることがわかります。
 
 このように、関連するタスクをグループ化することで `when` 句などを使ってまとめて制御することが可能になります。
 
-`block` に対して使用できるキーワードは [Playbook Keywords](https://docs.ansible.com/ansible/latest/reference_appendices/playbooks_keywords.html#block) に記載されています。
+`block` に対して使用できるキーワードは [Playbook Keywords](https://docs.ansible.com/projects/ansible/latest/reference_appendices/playbooks_keywords.html#block) に記載されています。
 
 
 ## rescue, always
----
+
 `block` 句では `rescue`, `always` を利用することが可能です。
 
 `~/working/rescue_playbook.yml` を以下のように作成してください。
@@ -86,32 +89,32 @@ changed: [node-1]
 ```yaml
 ---
 - name: using block, rescue, always statement
-  hosts: node-1
+  hosts: node1
   become: yes
   tasks:
     - block:
         - name: block task
-          debug:
+          ansible.builtin.debug:
             msg: "message from block"
 
         - name: check error flag in block
-          assert:
+          ansible.builtin.assert:
             that:
               - error_flag == 'no'
 
       rescue:
         - name: rescue task
-          debug:
+          ansible.builtin.debug:
             msg: "message from rescue"
 
         - name: check error flag in rescue
-          assert:
+          ansible.builtin.assert:
             that:
               - error_flag == 'no'
 
       always:
         - name: always task
-          debug:
+          ansible.builtin.debug:
             msg: "message from always"
 ```
 
@@ -124,22 +127,23 @@ changed: [node-1]
 
 実際に実行して結果を確認します。まず `error_flag=no` として、正常終了させます。
 
-`ansible-playbook rescue_playbook.yml -e 'error_flag=no'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook rescue_playbook.yml -e 'error_flag=no'`
 
 ```text
 TASK [block task] ************************************
-ok: [node-1] => {
+ok: [node1] => {
     "msg": "message from block"
 }
 
 TASK [check error flag in block] *********************
-ok: [node-1] => {
+ok: [node1] => {
     "changed": false,
     "msg": "All assertions passed"
 }
 
 TASK [always task] ***********************************
-ok: [node-1] => {
+ok: [node1] => {
     "msg": "message from always"
 }
 ```
@@ -148,7 +152,8 @@ ok: [node-1] => {
 
 次に、エラーが発生する場合のケースを確認します。
 
-`ansible-playbook rescue_playbook.yml -e 'error_flag=yes'`{{execute}}
+![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
+`ansible-playbook rescue_playbook.yml -e 'error_flag=yes'`
 
 ```text
 TASK [block task] ************************************
@@ -157,7 +162,15 @@ ok: [node-1] => {
 }
 
 TASK [check error flag in block] *********************
-fatal: [node-1]: FAILED! => {
+[ERROR]: Task failed: Action failed: Assertion failed
+Origin: /student/rescue_playbook.yml:10:11
+
+ 8             msg: "message from block"
+ 9
+10         - name: check error flag in block
+             ^ column 11
+
+fatal: [node1]: FAILED! => {
     "assertion": "error_flag == 'no'",
     "changed": false,
     "evaluated_to": false,
@@ -170,7 +183,15 @@ ok: [node-1] => {
 }
 
 TASK [check error flag in rescue] ********************
-fatal: [node-1]: FAILED! => {
+[ERROR]: Task failed: Action failed: Assertion failed
+Origin: /student/rescue_playbook.yml:20:11
+
+18             msg: "message from rescue"
+19
+20         - name: check error flag in rescue
+             ^ column 11
+
+fatal: [node1]: FAILED! => {
     "assertion": "error_flag == 'no'",
     "changed": false,
     "evaluated_to": false,
@@ -189,6 +210,6 @@ ok: [node-1] => {
 
 
 ## 演習の解答
----
-- [block\_playbook.yml](https://github.com/irixjp/katacoda-scenarios/blob/master/materials/solutions/block_playbook.yml)
-- [rescue\_playbook.yml](https://github.com/irixjp/katacoda-scenarios/blob/master/materials/solutions/rescue_playbook.yml)
+
+- [block\_playbook.yml](https://github.com/irixjp/aitac-automation/blob/main/101_ansible_basic/solutions/block_playbook.yml)
+- [rescue\_playbook.yml](https://github.com/irixjp/aitac-automation/blob/main/101_ansible_basic/solutions/rescue_playbook.yml)
