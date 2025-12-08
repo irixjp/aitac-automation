@@ -55,7 +55,7 @@
 
     - name: Gen student env info file
       ansible.builtin.copy:
-        dest: integrated_{{ class_id }}_class_env_info.txt
+        dest: "{{ class_id }}_integrated_class_env_info.txt"
         content: |
           {% for i in  range(number_of_host | int) %}
           https://aitac.emacs-lisp.net/{{ class_id }}-student{{ '{:03}'.format(i) }}/  {{ vars.hostvars[filtered_hosts[i]].password }}
