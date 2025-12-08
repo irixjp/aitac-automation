@@ -21,3 +21,6 @@ all:
     INSTANCE_TYPE: t3.medium
     VOLUME_SIZE: 30
     EC2_USER_NAME: ec2-user
+
+    # NGINX PROXY用 EIP
+    NGINX_EIP: 13.192.4.129

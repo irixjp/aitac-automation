@@ -1,0 +1,89 @@
+---
+- name: Setup nginx instance environment
+  hosts: all
+  gather_facts: no
+  tasks:
+
+    - name: Create a keypair
+      amazon.aws.ec2_key:
+        name: "{{ KEYPAIR_NAME }}-nginx"
+        region: "{{ REGION }}"
+        state: present
+      register: keypair
+
+    - debug: var=keypair
+
+    - name: Output private key
+      copy:
+        content: "{{ keypair.key.private_key }}"
+        dest: "{{ KEYPAIR_NAME }}-nginx.pem"
+        mode: "0600"
+      when: keypair.key.private_key is defined
+
+    - name: Collect subnet info
+      amazon.aws.ec2_vpc_subnet_info:
+        region: "{{ REGION }}"
+        filters:
+          "tag:role": "{{ RESOURCE_TAG_ROLE }}"
+      register: subnets
+
+    - debug: var=subnets
+
+    - name: Fetch existing instances with specific tag
+      amazon.aws.ec2_instance_info:
+        filters:
+          "tag:role": aitac-nginx-proxy
+      register: current_instances
+
+    - debug: var=current_instances
+
+    - name: Count existing instances
+      set_fact:
+        current_count: "{{ current_instances.instances | length }}"
+
+    - debug: var=current_count
+
+    - name: start an instance with a public IP address
+      amazon.aws.ec2_instance:
+        name: aitac-nginx-proxy
+        key_name: "{{ KEYPAIR_NAME }}-nginx"
+        instance_type: "{{ INSTANCE_TYPE }}"
+        security_group: "{{ SEC_GROUP_NAME }}"
+        network_interfaces:
+          - assign_public_ip: false
+            subnet_id: "{{ subnets.subnets[0].id }}"
+        image_id: "{{ AMI_ID }}"
+        count: 1
+        tags:
+          role: aitac-nginx-proxy
+        volumes:
+          - device_name: /dev/sda1
+            ebs:
+              delete_on_termination: true
+              volume_size: 50
+      when: current_count | int < 1
+      register: ec2_instances
+
+    - debug: var=ec2_instances
+
+    - set_fact:
+        ec2_instances: "{{ current_instances }}"
+      when: current_count | int == 1 | int
+
+    - debug: var=ec2_instances
+
+    - name: associate an elastic IP with an instance
+      amazon.aws.ec2_eip:
+        device_id: "{{ ec2_instances.instances[0].instance_id }}"
+        ip: "{{ NGINX_EIP }}"
+
+    - name: Gen inventory
+      ansible.builtin.copy:
+        dest: nginx_inventory
+        content: |
+          aitac-nginx ansible_host={{ NGINX_EIP }}
+
+          [all:vars]
+          ansible_user={{ EC2_USER_NAME }}
+          ansible_ssh_private_key_file={{ KEYPAIR_NAME }}-nginx.pem
+

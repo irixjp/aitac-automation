@@ -200,7 +200,7 @@
       block:
         - name: generate passwords for containers
           ansible.builtin.set_fact:
-            code_server_password: "{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=12') }}"
+            code_server_password: "{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=16') }}"
 
         - name: write password to file
           ansible.builtin.copy:

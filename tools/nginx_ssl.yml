@@ -1,0 +1,135 @@
+---
+- hosts: aitac-nginx
+  become: true
+  gather_facts: false
+  vars:
+    server_fqdn: null
+    admin_email: null
+  tasks:
+    - name: Ensure server_fqdn variable is set
+      fail:
+        msg: "The variable 'server_fqdn' must be defined."
+      when: server_fqdn is not defined
+
+    - name: Ensure admin_email variable is set
+      fail:
+        msg: "The variable 'admin_email' must be defined."
+      when: admin_email is not defined
+
+    - ansible.builtin.ping:
+
+    - name: create cert directory
+      ansible.builtin.file:
+        state: directory
+        path: "/etc/pki/tls/certs/{{ server_fqdn }}"
+
+    - name: gen account private key
+      community.crypto.openssl_privatekey:
+        path: "/etc/pki/tls/certs/{{ server_fqdn }}/account.key"
+      register: ret_account_key
+
+    - ansible.builtin.debug: var=ret_account_key
+
+    - name: gen create server key
+      community.crypto.openssl_privatekey:
+        path: "/etc/pki/tls/certs/{{ server_fqdn }}/{{ server_fqdn }}.key"
+      register: ret_private_key
+
+    - ansible.builtin.debug: var=ret_private_key
+
+    - name: gen create csr
+      community.crypto.openssl_csr:
+        path: "/etc/pki/tls/certs/{{ server_fqdn }}/{{ server_fqdn }}.csr"
+        privatekey_path: "/etc/pki/tls/certs/{{ server_fqdn }}/{{ server_fqdn }}.key"
+        common_name: "{{ server_fqdn }}"
+      register: ret_csr
+
+    - ansible.builtin.debug: var=ret_csr
+
+    - name: Get challenge data for {{ server_fqdn }} from Let's Encrpyt
+      community.crypto.acme_certificate:
+        account_key_src: "/etc/pki/tls/certs/{{ server_fqdn }}/account.key"
+        account_email: "{{ admin_email }}"
+        csr: "/etc/pki/tls/certs/{{ server_fqdn }}/{{ server_fqdn }}.csr"
+        dest: "/etc/pki/tls/certs/{{ server_fqdn }}/{{ server_fqdn }}.crt"
+        acme_directory: https://acme-v02.api.letsencrypt.org/directory
+        acme_version: 2
+        challenge: http-01
+        terms_agreed: true
+        remaining_days: 30
+      register: ret_acme_challenge
+
+    - debug: var=ret_acme_challenge
+
+    - when:
+        - ret_acme_challenge is changed
+        - server_fqdn in ret_acme_challenge['challenge_data']
+      block:
+        - name: create challenge path
+          ansible.builtin.file:
+            state: directory
+            path: /var/www/letsencrypt/{{ ret_acme_challenge['challenge_data'][server_fqdn]['http-01']['resource'] | dirname }}
+
+        - name: put challenge data
+          ansible.builtin.copy:
+            dest: /var/www/letsencrypt/{{ ret_acme_challenge['challenge_data'][server_fqdn]['http-01']['resource'] }}
+            content: |
+              {{ ret_acme_challenge['challenge_data'][server_fqdn]['http-01']['resource_value'] }}
+
+        - name: nginx conf for challege data
+          ansible.builtin.copy:
+            dest: /etc/nginx/default.d/letsenct_challenge.conf
+            content: |
+              location ^~ /.well-known/acme-challenge/ {
+                default_type "text/plain";
+                root /var/www/letsencrypt;
+              }
+
+        - name: reload nginx conf
+          ansible.builtin.systemd_service:
+            name: nginx
+            state: reloaded
+    
+        - name: Validate challenge and save certs
+          community.crypto.acme_certificate:
+            acme_directory: https://acme-v02.api.letsencrypt.org/directory
+            acme_version: 2
+            terms_agreed: true
+            account_key_src: "/etc/pki/tls/certs/{{ server_fqdn }}/account.key"
+            csr: "/etc/pki/tls/certs/{{ server_fqdn }}/{{ server_fqdn }}.csr"
+            dest: "/etc/pki/tls/certs/{{ server_fqdn }}/{{ server_fqdn }}.crt"
+            data: "{{ ret_acme_challenge }}"
+
+    - name: Gen nginx ssl conf
+      ansible.builtin.copy:
+        dest: /etc/nginx/conf.d/letsencrypt.conf
+        content: |
+          server {
+            listen       443 ssl;
+            listen       [::]:443 ssl;
+            http2        on;
+            server_name  _;
+            root         /usr/share/nginx/html;
+
+            ssl_certificate "/etc/pki/tls/certs/{{ server_fqdn }}/{{ server_fqdn }}.crt";
+            ssl_certificate_key "/etc/pki/tls/certs/{{ server_fqdn }}/{{ server_fqdn }}.key";
+            ssl_session_cache shared:SSL:1m;
+            ssl_session_timeout  10m;
+            ssl_ciphers PROFILE=SYSTEM;
+            ssl_prefer_server_ciphers on;
+
+            include /etc/nginx/default.d/*.conf;
+          }
+
+    - name: delete challege files
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/nginx/default.d/letsenct_challenge.conf
+        - /var/www/letsencrypt
+
+    - name: reload nginx conf
+      ansible.builtin.systemd_service:
+        name: nginx
+        state: reloaded

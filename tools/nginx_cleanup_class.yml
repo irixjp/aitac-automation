@@ -1,0 +1,18 @@
+---
+- hosts: aitac-nginx
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Ensure class_id variable is set
+      fail:
+        msg: "The variable 'class_id' must be defined."
+      when: class_id is not defined
+
+    - ansible.builtin.file:
+        path: /etc/nginx/default.d/class-{{ class_id }}.conf
+        state: absent
+
+    - name: reload nginx conf
+      ansible.builtin.systemd_service:
+        name: nginx
+        state: reloaded

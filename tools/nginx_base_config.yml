@@ -1,0 +1,33 @@
+---
+- hosts: aitac-nginx
+  become: true
+  tasks:
+    - ansible.builtin.ping:
+
+    - name: OS update
+      ansible.builtin.dnf:
+        name: '*'
+        state: latest
+
+    - name: install nginx & packages
+      ansible.builtin.dnf:
+        name:
+          - nginx
+          - python3-cryptography
+        state: latest
+
+    - name: Disable SELinux
+      ansible.posix.selinux:
+        state: disabled
+
+    - name: start and enabled
+      ansible.builtin.systemd_service:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: reboot
+      ansible.builtin.reboot:
+        reboot_timeout: 180
+
+    - ansible.builtin.ping:

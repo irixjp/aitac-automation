@@ -1,0 +1,65 @@
+---
+- hosts: aitac-nginx
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Ensure class_id variable is set
+      fail:
+        msg: "The variable 'class_id' must be defined."
+      when: class_id is not defined
+    - debug: var=vars.hostvars
+
+    - name: Filter out hosts without local_endpoint
+      set_fact:
+        filtered_hosts: >-
+          {{
+            vars.hostvars
+            | dict2items
+            | selectattr('value.local_endpoint', 'defined')
+            | map(attribute='key')
+            | list
+          }}
+
+    - name: Show filtered hostnames with local_endpoint
+      debug:
+        var: filtered_hosts
+
+    - name: Calc the number of hosts
+      set_fact:
+        number_of_host: "{{ filtered_hosts | length }}"
+
+    - debug: var=number_of_host
+
+    - copy:
+        dest: /etc/nginx/default.d/class-{{ class_id }}.conf
+        content: |
+          {% for i in  range(number_of_host | int) %}
+          location /{{ class_id }}-student{{ '{:03}'.format(i) }}/ {
+             proxy_pass {{ vars.hostvars[filtered_hosts[i]].local_endpoint }}/;
+             proxy_set_header Host $host;
+             proxy_http_version 1.1;
+             proxy_set_header Upgrade $http_upgrade;
+             proxy_set_header Connection upgrade;
+             proxy_set_header Accept-Encoding gzip;
+             proxy_set_header X-Real-IP $remote_addr;
+             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+             proxy_redirect ~^\./\.\./(.*)$ /{{ class_id }}-student{{ '{:03}'.format(i) }}/$1;
+             proxy_redirect / /{{ class_id }}-student{{ '{:03}'.format(i) }}/;
+          }
+          {% endfor %}
+
+    - name: reload nginx conf
+      ansible.builtin.systemd_service:
+        name: nginx
+        state: reloaded
+
+    - name: Gen student env info file
+      ansible.builtin.copy:
+        dest: integrated_{{ class_id }}_class_env_info.txt
+        content: |
+          {% for i in  range(number_of_host | int) %}
+          https://aitac.emacs-lisp.net/{{ class_id }}-student{{ '{:03}'.format(i) }}/  {{ vars.hostvars[filtered_hosts[i]].password }}
+          {% endfor %}
+      run_once: true
+      delegate_to: localhost
+      become: false
