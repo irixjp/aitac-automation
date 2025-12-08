@@ -260,9 +260,9 @@ Playbookを実行します。
   
   - name: concatenate reports
     ansible.builtin.assemble:
-      src: .
-      regexp: 'setting\_report\_node*'
-      dest: setting_report.md
+      src: ./
+      regexp: '^setting\_report\_node*'
+      dest: ./setting_report.md
       delimiter: "\n"
     run_once: true
     delegate_to: localhost

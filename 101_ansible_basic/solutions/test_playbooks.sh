@@ -19,7 +19,6 @@ ansible-playbook handler_playbook.yml
 # step7
 ansible-playbook block_playbook.yml -e 'exec_block=yes'
 ansible-playbook block_playbook.yml -e 'exec_block=no'
-ansible-playbook rescue_playbook.yml -e 'error_flag=yes'
 ansible-playbook rescue_playbook.yml -e 'error_flag=no'
 
 # step8
@@ -45,3 +44,9 @@ ansible-playbook testing_assert_playbook.yml
 
 # step50
 ansible-playbook lb_web.yml
+curl node4
+curl node5
+curl node6
+curl node6
+curl node6
+curl node6

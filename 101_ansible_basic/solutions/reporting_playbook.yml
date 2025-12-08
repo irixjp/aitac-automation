@@ -15,12 +15,12 @@
         {% endfor %}
       dest: setting_report_{{ inventory_hostname }}.md
     delegate_to: localhost
-  
+
   - name: concatenate reports
     ansible.builtin.assemble:
-      src: .
-      regexp: 'setting\_report\_node*'
-      dest: setting_report.md
+      src: ./
+      regexp: '^setting\_report\_node*'
+      dest: ./setting_report.md
       delimiter: "\n"
     run_once: true
     delegate_to: localhost
