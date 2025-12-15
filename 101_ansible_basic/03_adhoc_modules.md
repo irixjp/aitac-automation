@@ -119,7 +119,7 @@ $ ansible all -m <module_name> -a '<parameters>'
 
 Ad-hoc コマンドを利用して、いくつかのモジュールを実際に動作させてみましょう。
 
-### ansible.builtin.ping
+### 🔸ansible.builtin.ping
 
 [`ansible.builtin.ping`](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/ping_module.html) モジュールを実行してみましょう。これは Ansible が操作対象のノードに対して「Ansible としての疎通」が可能かどうかを判定するモジュールです(ネットワークで利用するICMPとは意味合いが異なります)。pingモジュールのパラメーターは省略可能です。
 
@@ -139,7 +139,7 @@ node1 | SUCCESS => {
 ```
 
 
-### ansible.builtin.shell
+### 🔸ansible.builtin.shell
 
 次に、[`shell`](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/shell_module.html) モジュールを呼び出してみましょう。これは対象のノード上で任意のコマンドを実行し、その結果を回収するコマンドです。
 
@@ -183,7 +183,7 @@ node4 | CHANGED | rc=0 >>
 `ansible all -m ansible.builtin.shell -a 'rpm -qa |grep bash'`
 
 
-### ansible.builtin.dnf
+### 🔸ansible.builtin.dnf
 
 [`ansible.builtin.dnf`](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/dnf_module.html#ansible-collections-ansible-builtin-dnf-module)はパッケージの操作を行うモジュールです。このモジュールを利用して新しくパッケージをインストールしてみます。
 
@@ -235,7 +235,7 @@ node1 | CHANGED | rc=0 >>
 /usr/bin/tmux
 ```
 
-### ansible.builtin.setup
+### 🔸ansible.builtin.setup
 
 [`ansible.builtin.setup`](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/setup_module.html) は対象ノードの情報を取得するモジュールです。取得された情報は `ansible_xxx` という変数名で自動的にアクセス可能となります。
 

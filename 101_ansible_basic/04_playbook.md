@@ -81,7 +81,7 @@ YAMLはデータ構造を表現するためのフォーマットであるため�
 
 ここでは、WEBサーバーを構築する playbook を作成します。
 
-### play パート
+### 🔸play パート
 
 以下のようにファイルに追記してください。
 
@@ -100,7 +100,7 @@ YAMLはデータ構造を表現するためのフォーマットであるため�
 
 この部分は、playbook 内の `play` パートと呼ばれる部分で全体に関する挙動を宣言します。playbook全体のヘッダーのようなものだと理解してください。playパートで指定できる項目の[詳細については公式ドキュメント](https://docs.ansible.com/projects/ansible/latest/reference_appendices/playbooks_keywords.html#play) を確認してください。
 
-### task パート
+### 🔸task パート
 
 次に以下の状態となるように先のファイルへ追記します。インデントの階層に注意してください。
 
