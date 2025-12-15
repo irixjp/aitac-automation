@@ -26,6 +26,7 @@
 10. [Role の管理と再利用(Galaxy)](10_galaxy.md)
 11. [Collection による共通化](11_collections.md)
 12. [テスト自動化、レポート作成](13_testing.md)
+13. [練習問題](50_exercises.md)
 
 ## 演習教材について
 

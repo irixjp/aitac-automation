@@ -32,6 +32,15 @@
         gateway: "{{ podman_network_gateway }}"
         state: present
 
+    - name: Login to Docker Hub to mitigate rate limit.
+      containers.podman.podman_login:
+        username: "{{ reg_username }}"
+        password: "{{ reg_password }}"
+        registry: docker.io
+      when:
+        - reg_username is defined
+        - reg_password is defined
+
     - name: run code-server
       containers.podman.podman_container:
         name: code-server
@@ -288,3 +297,10 @@
         replace: ''
       run_once: true
       delegate_to: localhost
+
+    - name: Log out of quay.io
+      containers.podman.podman_logout:
+        registry: docker.io
+      when:
+        - reg_username is defined
+        - reg_password is defined

@@ -3,6 +3,11 @@
   become: true
   tasks:
     - ansible.builtin.ping:
+      register: ret_ping
+      until: ret_ping is not failed
+      retries: 30
+      delay: 10
+
 
     - name: OS update
       ansible.builtin.dnf:

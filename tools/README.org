@@ -25,7 +25,7 @@
   ansible-playbook -i yyyymmdd_podman_inventory podman_install.yml
 
   # 演習環境設定
-  ansible-playbook -i yyyymmdd_podman_inventory podman_container_deploy.yml
+  ansible-playbook -i yyyymmdd_podman_inventory podman_container_deploy.yml -e "reg_username=dockerhub_user" -e "reg_password=dockerhub_pass"
 
   # 演習コンテンツの配布
   ansible-playbook -i yyyymmdd_podman_inventory distributing_contents.yml
@@ -48,7 +48,7 @@
 
 #+begin_src shell
   # EC2 インスタンスの削除
-  ansible-playbook -i ec2_inventory ec2_instance_delete.yml -e "class_id=xxyy"
+  ansible-playbook -i ec2_inventory ec2_instance_delete.yml -e "class_id=yyyymmd"
 
   # リバースプロキシ設定の削除
   ansible-playbook -i nginx_inventory nginx_cleanup_class.yml -e "class_id=yyyymmdd"

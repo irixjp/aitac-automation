@@ -1,0 +1,34 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+
+    - name: Filter out hosts without local_endpoint
+      set_fact:
+        filtered_hosts: >-
+          {{
+            vars.hostvars
+            | dict2items
+            | selectattr('value.local_endpoint', 'defined')
+            | map(attribute='key')
+            | list
+          }}
+
+    - name: Show filtered hostnames with local_endpoint
+      debug:
+        var: filtered_hosts
+
+    - name: Calc the number of hosts
+      set_fact:
+        number_of_host: "{{ filtered_hosts | length }}"
+
+    - debug: var=number_of_host
+
+    - ansible.builtin.uri:
+        url: "{{ vars.hostvars[filtered_hosts[item]].public_endpoint }}"
+        timeout: 2
+        return_content: true
+      register: ret_uri
+      loop: "{{ range(0, number_of_host | int ) }}"
+
