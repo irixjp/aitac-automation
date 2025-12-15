@@ -240,14 +240,14 @@ ok: [node1] => {
 その他の変数の定義方法について紹介します。
 
 
-### ansible.builtin.set\_fact での定義
+### 🔸ansible.builtin.set\_fact での定義
 
 [ansible.builtin.set_fact](https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/set_fact_module.html) モジュールを使って、タスクパートの中で任意の変数を定義することができます。一般的な用途として、1つのタスクの実行結果を受け取り、その値を加工して新たな変数を定義し、その値を後続のタスクで利用する場合があります。
 
 `ansible.builtin.set_fact` を使う演習は次のパートで登場します。
 
 
-### host\_vars, group\_vars での定義
+### 🔸host\_vars, group\_vars での定義
 
 インベントリーの項目でも解説した変数です。特定のグループやホストに関連付けられる変数を定義することができます。インベントリーファイルに記載する以外にも、実行する playbook と同一ディレクトリに、`gourp_vars` `host_vars` ディレクトリを作成して、そこに `<group_name>.yml`, `<node_name>.yml` ファイルを作成することでグループ、ホスト変数として認識させることができます。
 
@@ -255,7 +255,7 @@ ok: [node1] => {
 
 実際にいくつかのホスト変数とグループ変数を定義します。
 
-### `~/working/group_vars/all.yml`
+### 🔸`~/working/group_vars/all.yml`
 
 グループ変数を定義します。
 
@@ -265,7 +265,7 @@ ok: [node1] => {
 vars_by_group_vars: 1000
 ```
 
-### `~/working/host_vars/node1.yml`
+### 🔸`~/working/host_vars/node1.yml`
 
 node1用のホスト変数を定義します。
 
@@ -275,7 +275,7 @@ node1用のホスト変数を定義します。
 vars_by_host_vars: 111
 ```
 
-### `~/working/host_vars/node2.yml`
+### 🔸`~/working/host_vars/node2.yml`
 
 node2用のホスト変数を定義します。
 
@@ -285,7 +285,7 @@ node2用のホスト変数を定義します。
 vars_by_host_vars: 222
 ```
 
-### `~/working/host_vars/node3.yml`
+### 🔸`~/working/host_vars/node3.yml`
 
 node3用のホスト変数を定義します。
 
@@ -295,7 +295,7 @@ node3用のホスト変数を定義します。
 vars_by_host_vars: 333
 ```
 
-### 変数ファイルの確認
+### 🔸変数ファイルの確認
 
 ここまでに作成したファイルを確認しておきます。
 
@@ -312,7 +312,7 @@ host_vars
 ```
 
 
-### `~/working/vars_host_group_playbook.yml`
+### 🔸`~/working/vars_host_group_playbook.yml`
 
 これらの変数を利用する playbook を作成します。
 
@@ -389,7 +389,7 @@ ok: [node3] => {
 このように、同じ変数名でグループやホストごとに別々の値を持たせることが可能となります。
 
 
-### register による実行結果の保存
+### 🔸register による実行結果の保存
 
 Ansible のモジュールは実行されると様々な戻り値を返します。playbook の中ではこの戻り値を保存して後続のタスクで利用することができます。その際に利用するのが `register` 句です。`register` に変数名を指定すると、その変数に戻り値を格納します。
 

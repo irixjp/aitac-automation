@@ -84,7 +84,7 @@ roles
 
 各ファイルを作成していきます。
 
-### タスクファイルの作成
+### 🔸タスクファイルの作成
 
 `~/working/roles/web_setup/tasks/main.yml` を編集
 
@@ -119,7 +119,7 @@ roles
 またロールには `play` パートを記述する必要はありませんのでタスクのみを列挙していきます。ロール内の `ansible.builtin.templates` `ansible.builtin.files` ディレクトリは、明示的にパスを指定しなくてもモジュールからファイル名だけで参照できるようになっています。そのため、`ansible.builtin.copy` と `ansible.builtin.template` モジュールの `src` にはファイル名しか記述されていません。
 
 
-### ハンドラーファイルの作成
+### 🔸ハンドラーファイルの作成
 
 `~/working/roles/web_setup/handlers/main.yml` を編集。
 
@@ -134,7 +134,7 @@ roles
 
 `handlers` ディレクトリにはハンドラーとして呼び出したい処理のみを配置します。
 
-### デフォルト変数の作成
+### 🔸デフォルト変数の作成
 
 `~/working/roles/web_setup/defaults/main.yml` の編集
 
@@ -148,7 +148,7 @@ LANG: JP
 
 > Note: 一般的にRole内で利用する変数名にはプリフィックスとしてRole名をつけることが多い。
 
-### テンプレートファイルの作成
+### 🔸テンプレートファイルの作成
 
 `~/working/roles/web_setup/templates/index.html.j2` の編集
 
@@ -169,7 +169,7 @@ LANG: JP
 
 `templates` には `template` モジュールが利用するテンプレートファイルを配置します。ここに配置したファイルは、Role内で呼び出される特定のモジュールからファイル名のみでアクセスできるようになります。
 
-### 配布ファイルの作成
+### 🔸配布ファイルの作成
 
 `~/working/roles/web_setup/files/httpd.conf` の編集
 
@@ -201,7 +201,7 @@ ServerAdmin centos_role@localhost
 `files` にはRoleで配布等に利用するファイルを配置します。このディレクトリもRole内から特定のモジュールがファイル名のみでアクセスできるようになります。
 
 
-### playbook の作成
+### 🔸playbook の作成
 
 `~/working/role_playbook.yml` の編集
 
@@ -218,7 +218,7 @@ ServerAdmin centos_role@localhost
         name: web_setup
 ```
 
-### 全体の確認
+### 🔸全体の確認
 
 作成したロールを確認します。
 

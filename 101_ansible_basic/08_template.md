@@ -138,7 +138,7 @@ Jinja2 の機能の一つで [`filter`](https://docs.ansible.com/projects/ansibl
 フィルターを利用するには `{{ var_name | filter_name }}` という形式で利用します。いつくか例をみてみましょう。
 
 
-### default フィルター
+### 🔸default フィルター
 
 変数に値が入っていない場合に、初期値を設定してくれるフィルターです。
 
@@ -151,7 +151,7 @@ node1 | SUCCESS => {
 }
 ```
 
-### upper/lower フィルター
+### 🔸upper/lower フィルター
 
 文字列を大文字・小文字に変換するフィルターです。
 
@@ -164,7 +164,7 @@ node1 | SUCCESS => {
 }
 ```
 
-### min/max フィルター
+### 🔸min/max フィルター
 
 リストから最小・最大値を取り出すフィルターです。
 
