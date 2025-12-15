@@ -9,7 +9,7 @@
 
 ## 演習環境への利用方法
 
-### 演習環境へのアクセス
+### 🔸演習環境へのアクセス
 講師の案内に従い演習環境へアクセスしてください。アクセスにはパスワードの入力が必要となります。
 
 ![vscode_pass.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/vscode_pass.png)
@@ -18,7 +18,7 @@
 
 ![vscode_start_page](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/vscode_start_page.png)
 
-### ファイルエクスプローラーの設定
+### 🔸ファイルエクスプローラーの設定
 
 画面左上の ![file_exp_icon.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/file_exp_icon.png) をクリックします。
 
@@ -36,7 +36,7 @@
 
 > Note: この後も警告が表示される場合はありますが、全て `Yes` や `Accept` を選択してください。
 
-### ターミナルの起動
+### 🔸ターミナルの起動
 
 画面左上側の「≡」(横三本線)アイコンをクリックして、`Terminal` -> `New Terminal` を選択するとターミナルを起動できます。
 
@@ -81,7 +81,7 @@ node6 | SUCCESS => {"changed": false,"ping": "pong"}
 
 > Note: 起動したターミナルはドラッグして移動することて表示位置を変更できます。演習が進めやすいように各自配置を調整してください。
 
-### 補足事項
+### 🔸補足事項
 
 本演習環境でファイルを編集する場合には左側のファイルブラウザからファイルを開くことでエディタを起動できます（ターミナル内で vi を使うことも可能です）。
 

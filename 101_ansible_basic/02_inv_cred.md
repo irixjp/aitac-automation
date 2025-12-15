@@ -6,7 +6,7 @@ Ansible の基本となるインベントリー(inventory)と認証情報(creden
 
 ## 演習環境での Ansible の実行
 
-まず以下のコマンドを実行してください。これは Ansible を使って3台の演習ノードのディスク使用量を確認しています。
+まず以下のコマンドを実行してください。これは Ansible を使って演習ノードのディスク使用量を確認しています。
 
 ![run_command.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/run_command.png)
 `cd ~/`
@@ -112,7 +112,7 @@ ssh_args = -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=
 `cat ~/inventory`
 
 ```text
-web]
+[web]
 node1 ansible_host=172.22.22.101
 node2 ansible_host=172.22.22.102
 node3 ansible_host=172.22.22.103
@@ -191,7 +191,6 @@ node1 | SUCCESS => {"changed": false,"ping": "pong"}
 
 ```text
 node1 | SUCCESS => {"changed": false,"ping": "pong"}
-node2 | SUCCESS => {"changed": false,"ping": "pong"}
 node3 | SUCCESS => {"changed": false,"ping": "pong"}
 ```
 
