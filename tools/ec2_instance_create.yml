@@ -57,6 +57,7 @@
         name: "{{ INSTANCE_NAME_PREFIX }}-{{ class_id }}"
         key_name: "{{ KEYPAIR_NAME }}-{{ class_id }}"
         instance_type: "{{ INSTANCE_TYPE }}"
+        cpu_credit_specification: standard
         security_group: "{{ SEC_GROUP_NAME }}"
         network_interfaces:
           - assign_public_ip: true
