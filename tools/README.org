@@ -3,13 +3,13 @@
 ** 最初に1回だけ実施
 
 #+begin_src shell
-  # VPCの設定
-  ansible-playbook -i ec2_inventory ec2_vpc_prepare.yml
+# VPCの設定
+ansible-playbook -i ec2_inventory ec2_vpc_prepare.yml
 
-  # nginx リバースプロキシサーバーの起動, 初期設定, SSL証明書取得
-  ansible-playbook -i ec2_inventory nginx_bootstrap.yml
-  ansible-playbook -i nginx_inventory nginx_base_config.yml
-  ansible-playbook -i nginx_inventory nginx_ssl.yml -e "admin_email=xxx@yyy.com" -e "server_fqdn=zzz.example.com"
+# nginx リバースプロキシサーバーの起動, 初期設定, SSL証明書取得
+ansible-playbook -i ec2_inventory nginx_bootstrap.yml
+ansible-playbook -i nginx_inventory nginx_base_config.yml
+ansible-playbook -i nginx_inventory nginx_ssl.yml -e "admin_email=xxx@yyy.com" -e "server_fqdn=zzz.example.com"
 #+end_src
 
 ** 講義ごとに実施
@@ -18,27 +18,30 @@
 - instance_num 起動する演習環境数(インスタンス数)を指定 = 受講人数 + 3-5 程度
 
 #+begin_src shell
-  # インスタンス起動
-  ansible-playbook -i ec2_inventory ec2_instance_create.yml -e "class_id=yyyymmdd" -e "instance_num=2"
+# インスタンス起動
+ansible-playbook -i ec2_inventory ec2_instance_create.yml -e "class_id=yyyymmdd" -e "instance_num=2"
 
-  # 初期設定
-  ansible-playbook -i yyyymmdd_podman_inventory podman_install.yml
+# 初期設定
+ansible-playbook -i yyyymmdd_podman_inventory podman_install.yml
 
-  # 演習環境設定
-  ansible-playbook -i yyyymmdd_podman_inventory podman_container_deploy.yml -e "reg_username=dockerhub_user" -e "reg_password=dockerhub_pass"
+# 演習環境設定
+ansible-playbook -i yyyymmdd_podman_inventory podman_container_deploy.yml -e "reg_username=dockerhub_user" -e "reg_password=dockerhub_pass"
 
-  # 演習コンテンツの配布
-  ansible-playbook -i yyyymmdd_podman_inventory distributing_contents.yml
+# 演習コンテンツの配布
+ansible-playbook -i yyyymmdd_podman_inventory distributing_contents.yml
 
-  # リバースプロキシ設定
-  ansible-playbook -i nginx_inventory -i yyyymmdd_class_env_info.txt nginx_class_config.yml -e "class_id=yyyymmdd"
+# リバースプロキシ設定
+ansible-playbook -i nginx_inventory -i yyyymmdd_class_env_info.txt nginx_class_config.yml -e "class_id=yyyymmdd"
+
+# 設定確認
+ansible-playbook -i yyyymmdd_class_env_info.txt podman_access_test.yml
 #+end_src
 
 ** SSL証明書の更新
 
 #+begin_src shell
-  # 期限が30日を切っていると更新される
-  ansible-playbook -i nginx_inventory nginx_ssl.yml -e "admin_email=xxx@yyy.com" -e "server_fqdn=zzz.example.com"
+# 期限が30日を切っていると更新される
+ansible-playbook -i nginx_inventory nginx_ssl.yml -e "admin_email=xxx@yyy.com" -e "server_fqdn=zzz.example.com"
 #+end_src
 
 
@@ -47,11 +50,11 @@
 ** 講義が終了したら実施
 
 #+begin_src shell
-  # EC2 インスタンスの削除
-  ansible-playbook -i ec2_inventory ec2_instance_delete.yml -e "class_id=yyyymmd"
+# EC2 インスタンスの削除
+ansible-playbook -i ec2_inventory ec2_instance_delete.yml -e "class_id=yyyymmd"
 
-  # リバースプロキシ設定の削除
-  ansible-playbook -i nginx_inventory nginx_cleanup_class.yml -e "class_id=yyyymmdd"
+# リバースプロキシ設定の削除
+ansible-playbook -i nginx_inventory nginx_cleanup_class.yml -e "class_id=yyyymmdd"
 #+end_src
 
 

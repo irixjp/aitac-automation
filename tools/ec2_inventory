@@ -2,7 +2,7 @@ all:
   hosts:
     localhost:
       ansible_connection: local
-      ansible_python_interpreter: /Users/tnakajim/.pyenv/shims/python
+      ansible_python_interpreter: /Users/tnakajim/Dropbox/home/src/aitac-automation/.venv/bin/python
   vars:
     # VPC 関係の設定
     REGION: ap-northeast-1

@@ -18,6 +18,7 @@
       ansible.builtin.command: "loginctl enable-linger {{ podman_user_name }}"
       args:
         creates: /var/lib/systemd/linger/{{ podman_user_name }}
+      become: true
 
     - name: create user systemd directory
       ansible.builtin.file:
