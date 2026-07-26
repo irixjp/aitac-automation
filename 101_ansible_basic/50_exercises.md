@@ -64,6 +64,11 @@ server {
 - `curl node5` → node5 のIPアドレスが表示されたトップページが表示されればOK
 - `curl node6` → 実行するたびに node4,5 のトップページが交互に表示されればOK
 
+サンプルの確認コマンド
+```shell
+for i in `seq 1 10`; do curl node6; done
+```
+
 ## 解答例
 
 - [httpd_myip](https://github.com/irixjp/aitac-automation/tree/main/101_ansible_basic/solutions/roles/httpd_myip)
