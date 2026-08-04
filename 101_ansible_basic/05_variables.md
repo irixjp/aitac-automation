@@ -23,6 +23,7 @@ Ansible における変数は以下の特徴を持っています。
 `~/working/vars_debug_playbook.yml` を以下のように編集してください。
 
 ![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/vars_debug_playbook.yml`
 ```yaml
 ---
 - hosts: node1
@@ -81,6 +82,7 @@ ok: [node1] => {
 `~/working/vars_play_playbook.yml` を以下のように編集します。
 
 ![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/vars_play_playbook.yml`
 ```yaml
 ---
 - hosts: node1
@@ -161,6 +163,7 @@ ok: [node1] => {
 `~/working/vars_task_playbook.yml` を以下のように編集します。
 
 ![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/vars_task_playbook.yml`
 ```yaml
 ---
 - hosts: node1
@@ -260,6 +263,7 @@ ok: [node1] => {
 グループ変数を定義します。
 
 ![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/group_vars/all.yml`
 ```yaml
 ---
 vars_by_group_vars: 1000
@@ -270,6 +274,7 @@ vars_by_group_vars: 1000
 node1用のホスト変数を定義します。
 
 ![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/host_vars/node1.yml`
 ```yaml
 ---
 vars_by_host_vars: 111
@@ -280,6 +285,7 @@ vars_by_host_vars: 111
 node2用のホスト変数を定義します。
 
 ![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/host_vars/node2.yml`
 ```yaml
 ---
 vars_by_host_vars: 222
@@ -290,6 +296,7 @@ vars_by_host_vars: 222
 node3用のホスト変数を定義します。
 
 ![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/host_vars/node3.yml`
 ```yaml
 ---
 vars_by_host_vars: 333
@@ -317,6 +324,7 @@ host_vars
 これらの変数を利用する playbook を作成します。
 
 ![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/vars_host_group_playbook.yml`
 ```yaml
 ---
 - hosts: web
@@ -396,6 +404,7 @@ Ansible のモジュールは実行されると様々な戻り値を返します
 `~/working/vars_register_playbook.yml` を以下のように編集します。
 
 ![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/vars_register_playbook.yml`
 ```yaml
 ---
 - hosts: node1

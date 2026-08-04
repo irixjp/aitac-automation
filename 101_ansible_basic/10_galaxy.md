@@ -34,6 +34,7 @@ Galaxy には既に膨大な数のロールが登録されており、大抵の�
 `~/working/roles/requirements.yml` を以下のように編集してください。
 
 ![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/roles/requirements.yml`
 ```yaml
 ---
 - src: irixjp.role_example_hello
@@ -45,6 +46,7 @@ Galaxy には既に膨大な数のロールが登録されており、大抵の�
 次にこのロールを利用する `~/working/galaxy_playbook.yml` を作成します。
 
 ![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/galaxy_playbook.yml`
 ```yaml
 ---
 - name: using galaxy
@@ -127,6 +129,7 @@ Role に含まれるカスタムモジュールやカスタムフィルターは
 このカスタムモジュールは以下のように使用できます。 `~/working/galaxy_playbook.yml` を編集します。
 
 ![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/galaxy_playbook.yml`
 ```yaml
 ---
 - name: using galaxy
