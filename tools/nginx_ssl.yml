@@ -99,6 +99,7 @@
             csr: "/etc/pki/tls/certs/{{ server_fqdn }}/{{ server_fqdn }}.csr"
             dest: "/etc/pki/tls/certs/{{ server_fqdn }}/{{ server_fqdn }}.crt"
             data: "{{ ret_acme_challenge }}"
+            remaining_days: 30
 
     - name: Gen nginx ssl conf
       ansible.builtin.copy:

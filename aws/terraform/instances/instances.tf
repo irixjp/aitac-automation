@@ -185,3 +185,28 @@ resource "aws_instance" "docker" {
     cpu_credits = "standard"
   }
 }
+
+resource "aws_instance" "containerlab" {
+  ami           = "ami-0d7cefc82bd37fe4c"
+  instance_type = "t3a.2xlarge"
+
+  subnet_id              = data.aws_subnet.subnet1_admin_public.id
+  key_name               = data.aws_key_pair.key.key_name
+  vpc_security_group_ids = [data.aws_security_group.int_sg.id]
+
+  associate_public_ip_address = true
+
+  root_block_device {
+    volume_size = 40
+    volume_type = "gp3"
+  }
+
+  tags = {
+    Name = "aitac-containerlab"
+    Role = "aitac-containerlab"
+  }
+
+  credit_specification {
+    cpu_credits = "standard"
+  }
+}

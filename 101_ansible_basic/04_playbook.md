@@ -86,6 +86,7 @@ YAMLはデータ構造を表現するためのフォーマットであるため�
 以下のようにファイルに追記してください。
 
 ![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/first_playbook.yml`
 ```yaml
 ---
 - name: deploy httpd server
@@ -105,6 +106,7 @@ YAMLはデータ構造を表現するためのフォーマットであるため�
 次に以下の状態となるように先のファイルへ追記します。インデントの階層に注意してください。
 
 ![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/first_playbook.yml`
 ```yaml
 ---
 - name: deploy httpd server
@@ -215,6 +217,9 @@ apache の初期画面が表示されれば成功です。アクセス出来な�
 `~/working/files/index.html` をエディタで開きます。
 
 ファイルを以下のように編集します。
+
+![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/files/index.html`
 ```html
 <body>
 <h1>Apache is running fine</h1>
@@ -224,6 +229,7 @@ apache の初期画面が表示されれば成功です。アクセス出来な�
 さらに `first_playbook.yml` を以下のように編集します。
 
 ![edit_file.png](https://raw.githubusercontent.com/irixjp/aitac-automation/main/101_ansible_basic/images/edit_file.png)
+`~/working/first_playbook.yml`
 ```yaml
 ---
 - name: deploy httpd server

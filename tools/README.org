@@ -18,30 +18,33 @@ ansible-playbook -i nginx_inventory nginx_ssl.yml -e "admin_email=xxx@yyy.com" -
 - instance_num 起動する演習環境数(インスタンス数)を指定 = 受講人数 + 3-5 程度
 
 #+begin_src shell
+# class_id の設定
+export CLASS_ID=20260930
+
 # インスタンス起動
-ansible-playbook -i ec2_inventory ec2_instance_create.yml -e "class_id=yyyymmdd" -e "instance_num=2"
+uv run ansible-playbook -i ec2_inventory ec2_instance_create.yml -e "class_id=${CLASS_ID}" -e "instance_num=2"
 
 # 初期設定
-ansible-playbook -i yyyymmdd_podman_inventory podman_install.yml
+uv run ansible-playbook -i ${CLASS_ID}_podman_inventory podman_install.yml
 
 # 演習環境設定
-ansible-playbook -i yyyymmdd_podman_inventory podman_container_deploy.yml -e "reg_username=dockerhub_user" -e "reg_password=dockerhub_pass"
+uv run ansible-playbook -i ${CLASS_ID}_podman_inventory podman_container_deploy.yml -e "reg_username=dockerhub_user" -e "reg_password=dockerhub_pass"
 
 # 演習コンテンツの配布
-ansible-playbook -i yyyymmdd_podman_inventory distributing_contents.yml
+uv run ansible-playbook -i ${CLASS_ID}_podman_inventory distributing_contents.yml
 
 # リバースプロキシ設定
-ansible-playbook -i nginx_inventory -i yyyymmdd_class_env_info.txt nginx_class_config.yml -e "class_id=yyyymmdd"
+uv run ansible-playbook -i nginx_inventory -i ${CLASS_ID}_class_env_info.txt nginx_class_config.yml -e "class_id=${CLASS_ID}"
 
 # 設定確認
-ansible-playbook -i yyyymmdd_class_env_info.txt podman_access_test.yml
+uv run ansible-playbook -i ${CLASS_ID}_class_env_info.txt podman_access_test.yml
 #+end_src
 
 ** SSL証明書の更新
 
 #+begin_src shell
 # 期限が30日を切っていると更新される
-ansible-playbook -i nginx_inventory nginx_ssl.yml -e "admin_email=xxx@yyy.com" -e "server_fqdn=zzz.example.com"
+uv run ansible-playbook -i nginx_inventory nginx_ssl.yml -e "admin_email=xxx@yyy.com" -e "server_fqdn=zzz.example.com"
 #+end_src
 
 
